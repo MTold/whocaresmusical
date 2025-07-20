@@ -1,7 +1,13 @@
 package com.whocares.musicalapi.dto.response;
 
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReviewResponse {
     private Long id;
     private String content;
@@ -12,6 +18,11 @@ public class ReviewResponse {
     private LocalDateTime createdAt;
     private Long performanceId;
     private String performanceName;
+    private Integer status; // 新增：审核状态 (0-待审核 1-已通过 2-违规)
+
+    public String getFormattedDate() {
+        return createdAt.toString(); // 或使用DateTimeFormatter格式化
+    }
 
     public Long getId() {
         return id;
