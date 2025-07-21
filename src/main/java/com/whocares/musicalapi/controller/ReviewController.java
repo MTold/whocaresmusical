@@ -3,9 +3,15 @@ package com.whocares.musicalapi.controller;
 import com.whocares.musicalapi.dto.request.ReviewRequest;
 import com.whocares.musicalapi.dto.response.ReviewResponse;
 import com.whocares.musicalapi.dto.response.ReviewStatisticsResponse;
+import com.whocares.musicalapi.entity.Review;
 import com.whocares.musicalapi.service.ReviewService;
+import com.whocares.musicalapi.service.impl.ReviewServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +24,26 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    @Autowired
+    private final ReviewServiceImpl reviewService;
 
     public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
+        this.reviewService = (ReviewServiceImpl) reviewService;
     }
+
+    /*@GetMapping("/reviews")
+    public List<Review> getAllReviews() {
+        return reviewService.getAllReviews();
+    }*/
+    @GetMapping("/by-status")
+    public List<Review> getReviewsByStatus(@RequestParam(required = false) Integer status) {
+        if (status == null) {
+            return reviewService.getAllReviews();
+        } else {
+            return reviewService.getReviewsByStatus(status);
+        }
+    }
+
 
     // 获取某个剧目的所有评价 (分页)
     @GetMapping("/performance/{performanceId}")
