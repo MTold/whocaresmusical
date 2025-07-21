@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "reviews")
@@ -50,6 +51,10 @@ public class Review {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "review_status")  // 映射数据库列名
+    private Integer reviewStatus;     // 实体类属性名
+
 
     public Long getId() {
         return id;
@@ -122,6 +127,14 @@ public class Review {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public Integer getReview_status() {
+        return reviewStatus;
+    }
+
+    /*public void setReview_status(Integer review_status) {
+        this.reviewStatus = review_status;
+    }*/
 
     @PrePersist
     protected void onCreate() {

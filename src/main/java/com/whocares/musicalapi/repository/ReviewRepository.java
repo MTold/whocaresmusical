@@ -28,7 +28,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     // 获取所有评价（管理后台用）
     Page<Review> findAllByOrderByCreatedAtDesc(Pageable pageable);
-    
+    // 根据评价状态查询评价
+    List<Review> findByReviewStatus(Integer reviewStatus);
     // 根据评分筛选评价
     Page<Review> findByPerformanceIdAndRatingOrderByCreatedAtDesc(Long performanceId, Integer rating, Pageable pageable);
 }

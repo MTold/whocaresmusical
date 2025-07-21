@@ -12,6 +12,7 @@ import com.whocares.musicalapi.repository.ReviewRepository;
 import com.whocares.musicalapi.repository.UserRepository;
 import com.whocares.musicalapi.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +28,14 @@ import java.util.Objects;
 @Transactional
 public class ReviewServiceImpl implements ReviewService {
 
+    @Autowired
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
+
+    public List<Review> getReviewsByStatus(Integer status) {
+        return reviewRepository.findByReviewStatus(status);
+    }
 
     public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, PerformanceRepository performanceRepository) {
         this.reviewRepository = reviewRepository;
