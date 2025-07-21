@@ -37,11 +37,9 @@ public class ReviewController {
     }*/
     @GetMapping("/by-status")
     public List<Review> getReviewsByStatus(@RequestParam(required = false) Integer status) {
-        if (status == null) {
-            return reviewService.getAllReviews();
-        } else {
+
             return reviewService.getReviewsByStatus(status);
-        }
+
     }
 
 
