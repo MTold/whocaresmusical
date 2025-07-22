@@ -33,9 +33,12 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
 
-    public List<Review> getReviewsByStatus(Integer status) {
-        return reviewRepository.findByReviewStatus(status);
-    }
+    // 在Repository接口中修改
+
+    @Override
+    public Page<Review> findByReviewStatus(Integer status, Pageable pageable) {
+        // 方法1：直接使用JPA方法名查询
+        return reviewRepository.findByReviewStatus(status, pageable);}
 
     public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, PerformanceRepository performanceRepository) {
         this.reviewRepository = reviewRepository;

@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews/performance/**").permitAll()  // 允许查看评价
                         .requestMatchers("/api/reviews/performance/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
+                        .requestMatchers("/api/reviews/by-status").permitAll()  // 允许匿名访问按状态查询评价
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
