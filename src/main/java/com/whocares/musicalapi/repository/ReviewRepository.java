@@ -14,17 +14,17 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     // 根据剧目ID查找评价
-    Page<Review> findByPerformanceIdOrderByCreatedAtDesc(Long performanceId, Pageable pageable);
+    Page<Review> findByMusicalIdOrderByCreatedAtDesc(Long musicalId, Pageable pageable);
     
     // 根据用户ID查找评价
     Page<Review> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
     
     // 获取用户的某个评价（用于检查是否已评价过）
-    Review findByUserIdAndPerformanceId(Long userId, Long performanceId);
+    Review findByUserIdAndMusicalId(Long userId, Long musicalId);
     
     // 获取剧目的评轮平均分和数量
-    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.performance.id = :performanceId")
-    List<Object[]> getReviewStatistics(@Param("performanceId") Long performanceId);
+    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.musical.id = :musicalId")
+    List<Object[]> getReviewStatistics(@Param("musicalId") Long musicalId);
     
     // 获取所有评价（管理后台用）
     Page<Review> findAllByOrderByCreatedAtDesc(Pageable pageable);
@@ -37,5 +37,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         Page<Review> findByStatusWithPerformance(@Param("status") Integer status, Pageable pageable);
 
     // 根据评分筛选评价
-    Page<Review> findByPerformanceIdAndRatingOrderByCreatedAtDesc(Long performanceId, Integer rating, Pageable pageable);
+    Page<Review> findByMusicalIdAndRatingOrderByCreatedAtDesc(Long musicalId, Integer rating, Pageable pageable);
 }

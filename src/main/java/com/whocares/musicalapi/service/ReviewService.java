@@ -16,16 +16,18 @@ import java.util.List;
 
 public interface ReviewService {
     
-    Page<ReviewResponse> getReviewsByPerformance(Long performanceId, int page, int size, Integer rating);
+    Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating);
     
     Page<ReviewResponse> getReviewsByUser(String username, int page, int size);
+
 
     // 添加新的方法来按状态分类获取所有评价
     //List<ReviewResponse> getReviewsByStatus(Integer status, Pageable pageable);
 
 
     Page<Review> findByReviewStatus(Integer status, Pageable pageable); // 接口声明
-    ReviewStatisticsResponse getReviewStatistics(Long performanceId);
+    
+    ReviewStatisticsResponse getReviewStatistics(Long musicalId);
     
     ReviewResponse createReview(ReviewRequest reviewRequest, String username);
     
@@ -33,5 +35,5 @@ public interface ReviewService {
     
     void deleteReview(Long reviewId, String username, Iterable<? extends GrantedAuthority> authorities);
     
-    boolean hasUserReviewed(String username, Long performanceId);
+    boolean hasUserReviewed(String username, Long musicalId);
 }
