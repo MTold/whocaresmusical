@@ -8,6 +8,9 @@ import com.whocares.musicalapi.service.ReviewService;
 import com.whocares.musicalapi.service.impl.ReviewServiceImpl;
 import jakarta.validation.Valid;
 import com.whocares.musicalapi.security.jwt.JwtTokenProvider;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,11 +63,24 @@ public class ReviewController {
 
     //按状态分类获取所有评价
     @GetMapping("/by-status")
-    public List<Review> getReviewsByStatus(@RequestParam(required = false) Integer status) {
+    public ResponseEntity<Page<Review>> getReviewsByStatus(
+            @RequestParam Integer status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort) {
 
-            return reviewService.getReviewsByStatus(status);
+            // 创建Pageable对象
+            Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Order.desc("createdAt")) // 按创建时间降序
+            );
 
-    }
+            return ResponseEntity.ok(reviewService.findByReviewStatus(status, pageable));
+        }
+            //return reviewService.getReviewsByStatus(status);
+
+    //}
 
     // 获取某个剧目的所有评价 (分页)
     @GetMapping("/performance/{performanceId}")
