@@ -8,11 +8,11 @@ import org.springframework.security.core.GrantedAuthority;
 
 public interface ReviewService {
     
-    Page<ReviewResponse> getReviewsByPerformance(Long performanceId, int page, int size, Integer rating);
+    Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating);
     
     Page<ReviewResponse> getReviewsByUser(String username, int page, int size);
     
-    ReviewStatisticsResponse getReviewStatistics(Long performanceId);
+    ReviewStatisticsResponse getReviewStatistics(Long musicalId);
     
     ReviewResponse createReview(ReviewRequest reviewRequest, String username);
     
@@ -20,5 +20,5 @@ public interface ReviewService {
     
     void deleteReview(Long reviewId, String username, Iterable<? extends GrantedAuthority> authorities);
     
-    boolean hasUserReviewed(String username, Long performanceId);
+    boolean hasUserReviewed(String username, Long musicalId);
 }

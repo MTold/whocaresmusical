@@ -39,12 +39,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
-                        .requestMatchers("/api/performances").permitAll()  // 允许查看剧目列表
-                        .requestMatchers("/api/performances/**").permitAll()  // 允许查看剧目详情
+                        .requestMatchers("/api/musicals").permitAll()  // 允许查看剧目列表
+                        .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
                         .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
                         .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
-                        .requestMatchers("/api/reviews/performance/**").permitAll()  // 允许查看评价
-                        .requestMatchers("/api/reviews/performance/*/statistics").permitAll()  // 允许查看评价统计
+                        .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
+                        .requestMatchers("/api/reviews/musical/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "reviews")
@@ -41,10 +40,10 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_id", nullable = false)
     @JsonIgnore
-    private Performance performance;
+    private Musical musical;
 
     @Column(name = "performance_id", insertable = false, updatable = false)
-    private Long performanceId;
+    private Long musicalId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -96,20 +95,20 @@ public class Review {
         this.userId = userId;
     }
 
-    public Performance getPerformance() {
-        return performance;
+    public Musical getMusical() {
+        return musical;
     }
 
-    public void setPerformance(Performance performance) {
-        this.performance = performance;
+    public void setMusical(Musical musical) {
+        this.musical = musical;
     }
 
-    public Long getPerformanceId() {
-        return performanceId;
+    public Long getMusicalId() {
+        return musicalId;
     }
 
-    public void setPerformanceId(Long performanceId) {
-        this.performanceId = performanceId;
+    public void setMusicalId(Long musicalId) {
+        this.musicalId = musicalId;
     }
 
     public LocalDateTime getCreatedAt() {

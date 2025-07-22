@@ -66,13 +66,13 @@ public class ReviewController {
 
 
     // 获取某个剧目的所有评价 (分页)
-    @GetMapping("/performance/{performanceId}")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsByPerformance(
-            @PathVariable Long performanceId,
+    @GetMapping("/musical/{musicalId}")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByMusical(
+            @PathVariable Long musicalId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) Integer rating) {
-        return ResponseEntity.ok(reviewService.getReviewsByPerformance(performanceId, page, size, rating));
+        return ResponseEntity.ok(reviewService.getReviewsByMusical(musicalId, page, size, rating));
     }
 
     // 获取用户的所有评价
@@ -85,9 +85,9 @@ public class ReviewController {
     }
 
     // 获取某个剧目的评价统计信息
-    @GetMapping("/performance/{performanceId}/statistics")
-    public ResponseEntity<ReviewStatisticsResponse> getReviewStatistics(@PathVariable Long performanceId) {
-        return ResponseEntity.ok(reviewService.getReviewStatistics(performanceId));
+    @GetMapping("/musical/{musicalId}/statistics")
+    public ResponseEntity<ReviewStatisticsResponse> getReviewStatistics(@PathVariable Long musicalId) {
+        return ResponseEntity.ok(reviewService.getReviewStatistics(musicalId));
     }
 
     // 创建新评价
@@ -118,13 +118,13 @@ public class ReviewController {
     }
 
     // 检查用户是否已对某个剧目评价过
-    @GetMapping("/check/{performanceId}")
+    @GetMapping("/check/{musicalId}")
     public ResponseEntity<Boolean> hasUserReviewed(
-            @PathVariable Long performanceId) {
+            @PathVariable Long musicalId) {
         String username = getCurrentUsername();
         if (username.equals("anonymous")) {
             return ResponseEntity.ok(false); // 匿名用户始终可以评论
         }
-        return ResponseEntity.ok(reviewService.hasUserReviewed(username, performanceId));
+        return ResponseEntity.ok(reviewService.hasUserReviewed(username, musicalId));
     }
 }
