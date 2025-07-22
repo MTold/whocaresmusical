@@ -65,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<ReviewResponse> getReviewsByUser(String username, int page, int size) {
         User user = getUserByUsername(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Review> reviewsPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        Page<Review> reviewsPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId(), pageable);
         
         return reviewsPage.map(this::convertToResponse);
     }
@@ -77,8 +77,9 @@ public class ReviewServiceImpl implements ReviewService {
         
         List<Object[]> results = reviewRepository.getReviewStatistics(performanceId);
         
+        ReviewStatisticsResponse response = new ReviewStatisticsResponse();
+        
         if (results.isEmpty() || results.get(0)[0] == null) {
-            ReviewStatisticsResponse response = new ReviewStatisticsResponse();
             response.setTotalCount(0L);
             response.setAverageRating(0.0);
             response.setRating1Count(0L);
@@ -96,7 +97,6 @@ public class ReviewServiceImpl implements ReviewService {
         // 计算各等级评分数量
         RatingCounts counts = getRatingCounts(performanceId);
 
-        ReviewStatisticsResponse response = new ReviewStatisticsResponse();
         response.setTotalCount(totalCount);
         response.setAverageRating(Math.round(averageRating * 10.0) / 10.0); // 保留一位小数
         response.setRating1Count(counts.getRating1());
@@ -116,6 +116,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = new Review();
         review.setContent(reviewRequest.getContent());
         review.setRating(reviewRequest.getRating());
+        review.setReviewStatus(1); // 默认状态为正常
         
         // 针对匿名用户，设置user为null，让数据库user_id为null
         if (!username.equals("anonymous")) {
@@ -143,7 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (!username.equals("anonymous")) {
             User user = getUserByUsername(username);
             // 验证是否是评价所有者 - 暂时禁用
-            if (review.getUser() != null && !review.getUser().getId().equals(user.getId())) {
+            if (review.getUser() != null && !review.getUser().getUserId().equals(user.getUserId())) {
                 throw new IllegalStateException("只能修改自己的评价");
             }
         }
@@ -172,7 +173,7 @@ public class ReviewServiceImpl implements ReviewService {
             User user = getUserByUsername(username);
             
             // 检查是否是评价所有者或管理员 - 暂时禁用或简化
-            if (review.getUser() != null && !review.getUser().getId().equals(user.getId())) {
+            if (review.getUser() != null && !review.getUser().getUserId().equals(user.getUserId())) {
                 boolean isAdmin = false;
                 for (GrantedAuthority authority : authorities) {
                     if (authority.getAuthority().equals("ROLE_ADMIN")) {
@@ -192,8 +193,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public boolean hasUserReviewed(String username, Long performanceId) {
+        if (username == null || username.equals("anonymous")) {
+            return false; // 匿名用户或未登录用户
+        }
+        
         User user = getUserByUsername(username);
-        return reviewRepository.findByUserIdAndPerformanceId(user.getId(), performanceId) != null;
+        Review existingReview = reviewRepository.findByUserIdAndPerformanceId(user.getUserId(), performanceId);
+        return existingReview != null;
     }
 
     private ReviewResponse convertToResponse(Review review) {
@@ -205,10 +211,11 @@ public class ReviewServiceImpl implements ReviewService {
             response.setContent(review.getContent());
             response.setRating(review.getRating());
             response.setCreatedAt(review.getCreatedAt());
-            response.setPerformanceId(review.getPerformanceId());
+            response.setPerformanceId(review.getPerformance() != null ? review.getPerformance().getId() : null);
+            response.setStatus(review.getReviewStatus()); // 添加状态字段
             
             if (review.getUser() != null) {
-                response.setUserId(review.getUser().getId());
+                response.setUserId(review.getUser().getUserId());
                 response.setUsername(review.getUser().getUsername());
                 response.setUserImage(review.getUser().getUserImage());
             } else {
@@ -253,15 +260,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private Performance getPerformance(Long performanceId) {
         return performanceRepository.findById(performanceId)
-                .orElseGet(() -> {
-                    // 真正创建缺失的Performance记录
-                    Performance newPerformance = new Performance();
-                    newPerformance.setName("测试剧目 " + performanceId);
-                    newPerformance.setDescription("这是一个自动创建的测试剧目，用于支持评论功能");
-                    newPerformance.setCategory("测试分类");
-                    newPerformance.setImage("/placeholder-image.jpg");
-                    return performanceRepository.save(newPerformance);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("剧目不存在: " + performanceId));
     }
 
     private static class RatingCounts {

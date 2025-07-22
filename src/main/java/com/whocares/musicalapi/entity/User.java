@@ -2,44 +2,36 @@ package com.whocares.musicalapi.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
 @Data
 public class User {
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
     
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, name = "username")
     private String username;
     
-    @Column(nullable = false)
+    @Column(nullable = false, name = "password")
     private String password;
     
-    private String userImage;
+    @Column(name = "phone")
+    private String phone;
     
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getUserImage() {
-        return userImage;
-    }
-
-    public void setUserImage(String userImage) {
-        this.userImage = userImage;
-    }
+    @Column(name = "gender")
+    private String gender;
+    
+    @Column(name = "birthday")
+    private LocalDate birthday;
+    
+    @Column(name = "email")
+    private String email;
+    
+    @Column(name = "user_image")
+    private String userImage;
 }

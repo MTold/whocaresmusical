@@ -7,17 +7,15 @@ import com.whocares.musicalapi.entity.Review;
 import com.whocares.musicalapi.service.ReviewService;
 import com.whocares.musicalapi.service.impl.ReviewServiceImpl;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import com.whocares.musicalapi.security.jwt.JwtTokenProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -26,9 +24,33 @@ public class ReviewController {
 
     @Autowired
     private final ReviewServiceImpl reviewService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     public ReviewController(ReviewService reviewService) {
         this.reviewService = (ReviewServiceImpl) reviewService;
+    }
+
+    private String getUsernameFromToken(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                return jwtTokenProvider.getUsernameFromToken(token);
+            } catch (Exception e) {
+                // 令牌无效或过期，返回匿名用户
+                return "anonymous";
+            }
+        }
+        return "anonymous"; // 没有令牌或令牌格式不正确
+    }
+    
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && 
+            !authentication.getPrincipal().equals("anonymousUser")) {
+            return authentication.getName();
+        }
+        return "anonymous";
     }
 
     /*@GetMapping("/reviews")
@@ -56,12 +78,11 @@ public class ReviewController {
 
     // 获取用户的所有评价
     @GetMapping("/user/me")
-    // @PreAuthorize("hasRole('USER')") - 暂时禁用登录要求
     public ResponseEntity<Page<ReviewResponse>> getMyReviews(
-            //@AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(reviewService.getReviewsByUser("anonymous", page, size));
+        String username = getCurrentUsername();
+        return ResponseEntity.ok(reviewService.getReviewsByUser(username, page, size));
     }
 
     // 获取某个剧目的评价统计信息
@@ -72,37 +93,39 @@ public class ReviewController {
 
     // 创建新评价
     @PostMapping
-    // @PreAuthorize("hasRole('USER')") - 暂时禁用登录要求
     public ResponseEntity<ReviewResponse> createReview(
-            @Valid @RequestBody ReviewRequest reviewRequest) {
-        // 暂时使用匿名用户
-        return ResponseEntity.ok(reviewService.createReview(reviewRequest, "anonymous"));
+            @Valid @RequestBody ReviewRequest reviewRequest,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String username = getCurrentUsername();
+        return ResponseEntity.ok(reviewService.createReview(reviewRequest, username));
     }
 
     // 更新评价
     @PutMapping("/{reviewId}")
-    // @PreAuthorize("hasRole('USER')") - 暂时禁用登录要求，允许任何人更新
     public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable Long reviewId,
             @Valid @RequestBody ReviewRequest reviewRequest) {
-        // 暂时允许匿名用户更新任何评价
-        return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest, "anonymous"));
+        String username = getCurrentUsername();
+        return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest, username));
     }
 
     // 删除评价
     @DeleteMapping("/{reviewId}")
-    // @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") - 暂时禁用登录要求
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId) {
-        // 暂时允许匿名用户删除任何评价
-        reviewService.deleteReview(reviewId, "anonymous", null);
+        String username = getCurrentUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        reviewService.deleteReview(reviewId, username, authentication.getAuthorities());
         return ResponseEntity.noContent().build();
     }
 
     // 检查用户是否已对某个剧目评价过
     @GetMapping("/check/{performanceId}")
-    // @PreAuthorize("hasRole('USER')") - 暂时禁用登录要求
-    public ResponseEntity<Boolean> hasUserReviewed(@PathVariable Long performanceId) {
-        // 匿名的用户永远返回false，让他们始终可以评论
-        return ResponseEntity.ok(false);
+    public ResponseEntity<Boolean> hasUserReviewed(
+            @PathVariable Long performanceId) {
+        String username = getCurrentUsername();
+        if (username.equals("anonymous")) {
+            return ResponseEntity.ok(false); // 匿名用户始终可以评论
+        }
+        return ResponseEntity.ok(reviewService.hasUserReviewed(username, performanceId));
     }
 }
