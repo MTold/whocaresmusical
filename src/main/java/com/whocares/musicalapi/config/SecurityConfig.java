@@ -2,12 +2,22 @@ package com.whocares.musicalapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.whocares.musicalapi.security.jwt.JwtAuthenticationFilter;
+import com.whocares.musicalapi.security.jwt.JwtTokenProvider;
 
 import java.util.Arrays;
 
@@ -15,15 +25,31 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService;
+
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userDetailsService = userDetailsService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll()  // 允许/api/**路径的请求
-                        .anyRequest().permitAll()           // 其他请求需要认证
+                        .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
+                        .requestMatchers("/api/**").permitAll()        // 允许/api/**路径的请求
+                        .requestMatchers("/error").permitAll()         // 允许错误路径
+                        .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
+                        .anyRequest().permitAll()                      // 其他请求也允许（开发环境）
                 )
-                .csrf(csrf -> csrf.disable());              // 禁用CSRF
+                .csrf(csrf -> csrf.disable())                         // 禁用CSRF
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // 无状态会话
+        
+        // 添加JWT过滤器
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        
         return http.build();
     }
 
@@ -38,5 +64,20 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);     // 对所有路径应用CORS配置
         return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 }

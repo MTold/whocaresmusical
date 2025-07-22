@@ -65,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<ReviewResponse> getReviewsByUser(String username, int page, int size) {
         User user = getUserByUsername(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Review> reviewsPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        Page<Review> reviewsPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId(), pageable);
         
         return reviewsPage.map(this::convertToResponse);
     }
@@ -143,7 +143,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (!username.equals("anonymous")) {
             User user = getUserByUsername(username);
             // 验证是否是评价所有者 - 暂时禁用
-            if (review.getUser() != null && !review.getUser().getId().equals(user.getId())) {
+            if (review.getUser() != null && !review.getUser().getUserId().equals(user.getUserId())) {
                 throw new IllegalStateException("只能修改自己的评价");
             }
         }
@@ -172,7 +172,7 @@ public class ReviewServiceImpl implements ReviewService {
             User user = getUserByUsername(username);
             
             // 检查是否是评价所有者或管理员 - 暂时禁用或简化
-            if (review.getUser() != null && !review.getUser().getId().equals(user.getId())) {
+            if (review.getUser() != null && !review.getUser().getUserId().equals(user.getUserId())) {
                 boolean isAdmin = false;
                 for (GrantedAuthority authority : authorities) {
                     if (authority.getAuthority().equals("ROLE_ADMIN")) {
@@ -193,7 +193,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public boolean hasUserReviewed(String username, Long performanceId) {
         User user = getUserByUsername(username);
-        return reviewRepository.findByUserIdAndPerformanceId(user.getId(), performanceId) != null;
+        return reviewRepository.findByUserIdAndPerformanceId(user.getUserId(), performanceId) != null;
     }
 
     private ReviewResponse convertToResponse(Review review) {
@@ -208,7 +208,7 @@ public class ReviewServiceImpl implements ReviewService {
             response.setPerformanceId(review.getPerformanceId());
             
             if (review.getUser() != null) {
-                response.setUserId(review.getUser().getId());
+                response.setUserId(review.getUser().getUserId());
                 response.setUsername(review.getUser().getUsername());
                 response.setUserImage(review.getUser().getUserImage());
             } else {
