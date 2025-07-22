@@ -29,7 +29,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 获取所有评价（管理后台用）
     Page<Review> findAllByOrderByCreatedAtDesc(Pageable pageable);
     // 根据评价状态查询评价
-    List<Review> findByReviewStatus(Integer reviewStatus);
+        // 修改后的分页查询方法
+        Page<Review> findByReviewStatus(Integer reviewStatus, Pageable pageable);
+
+        // 可选：添加关联查询（如果需要剧目信息）
+        @Query("SELECT r FROM Review r LEFT JOIN FETCH r.performance WHERE r.reviewStatus = :status")
+        Page<Review> findByStatusWithPerformance(@Param("status") Integer status, Pageable pageable);
+
     // 根据评分筛选评价
     Page<Review> findByPerformanceIdAndRatingOrderByCreatedAtDesc(Long performanceId, Integer rating, Pageable pageable);
 }
