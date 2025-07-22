@@ -39,10 +39,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
-                        .requestMatchers("/api/**").permitAll()        // 允许/api/**路径的请求
+                        .requestMatchers("/api/performances").permitAll()  // 允许查看剧目列表
+                        .requestMatchers("/api/performances/**").permitAll()  // 允许查看剧目详情
+                        .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
+                        .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
+                        .requestMatchers("/api/reviews/performance/**").permitAll()  // 允许查看评价
+                        .requestMatchers("/api/reviews/performance/*/statistics").permitAll()  // 允许查看评价统计
+                        .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
-                        .anyRequest().permitAll()                      // 其他请求也允许（开发环境）
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
+                        .anyRequest().authenticated()                  // 其他请求需要认证
                 )
                 .csrf(csrf -> csrf.disable())                         // 禁用CSRF
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // 无状态会话

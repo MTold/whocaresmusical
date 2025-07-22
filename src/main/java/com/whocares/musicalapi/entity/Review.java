@@ -53,7 +53,7 @@ public class Review {
     private LocalDateTime updatedAt;
 
     @Column(name = "review_status")  // 映射数据库列名
-    private Integer reviewStatus;     // 实体类属性名
+    private Integer reviewStatus = 1;     // 默认值为1（正常状态）
 
 
     public Long getId() {
@@ -128,13 +128,13 @@ public class Review {
         this.updatedAt = updatedAt;
     }
 
-    public Integer getReview_status() {
+    public Integer getReviewStatus() {
         return reviewStatus;
     }
 
-    /*public void setReview_status(Integer review_status) {
-        this.reviewStatus = review_status;
-    }*/
+    public void setReviewStatus(Integer reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
 
     @PrePersist
     protected void onCreate() {

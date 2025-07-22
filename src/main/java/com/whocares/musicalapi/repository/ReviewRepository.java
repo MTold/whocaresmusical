@@ -23,7 +23,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Review findByUserIdAndPerformanceId(Long userId, Long performanceId);
     
     // 获取剧目的评轮平均分和数量
-    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.performanceId = :performanceId")
+    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.performance.id = :performanceId")
     List<Object[]> getReviewStatistics(@Param("performanceId") Long performanceId);
     
     // 获取所有评价（管理后台用）
