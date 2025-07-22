@@ -128,13 +128,10 @@ public class Review {
         this.updatedAt = updatedAt;
     }
 
-    public Integer getReview_status() {
+    /*public Integer getReview_status() {
         return reviewStatus;
-    }
-
-    /*public void setReview_status(Integer review_status) {
-        this.reviewStatus = review_status;
     }*/
+
 
     @PrePersist
     protected void onCreate() {
