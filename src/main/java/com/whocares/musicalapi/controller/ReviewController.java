@@ -35,13 +35,14 @@ public class ReviewController {
     public List<Review> getAllReviews() {
         return reviewService.getAllReviews();
     }*/
+
+    //按状态分类获取所有评价
     @GetMapping("/by-status")
     public List<Review> getReviewsByStatus(@RequestParam(required = false) Integer status) {
 
             return reviewService.getReviewsByStatus(status);
 
     }
-
 
     // 获取某个剧目的所有评价 (分页)
     @GetMapping("/performance/{performanceId}")
