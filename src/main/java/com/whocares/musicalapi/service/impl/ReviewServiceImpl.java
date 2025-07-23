@@ -3,15 +3,14 @@ package com.whocares.musicalapi.service.impl;
 import com.whocares.musicalapi.dto.request.ReviewRequest;
 import com.whocares.musicalapi.dto.response.ReviewResponse;
 import com.whocares.musicalapi.dto.response.ReviewStatisticsResponse;
-import com.whocares.musicalapi.entity.Performance;
+import com.whocares.musicalapi.entity.Musical;
 import com.whocares.musicalapi.entity.Review;
 import com.whocares.musicalapi.entity.User;
 import com.whocares.musicalapi.exception.ResourceNotFoundException;
-import com.whocares.musicalapi.repository.PerformanceRepository;
+import com.whocares.musicalapi.repository.MusicalRepository;
 import com.whocares.musicalapi.repository.ReviewRepository;
 import com.whocares.musicalapi.repository.UserRepository;
 import com.whocares.musicalapi.service.ReviewService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -31,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
-    private final PerformanceRepository performanceRepository;
+    private final MusicalRepository musicalRepository;
 
     // 在Repository接口中修改
 
@@ -40,24 +38,24 @@ public class ReviewServiceImpl implements ReviewService {
         // 方法1：直接使用JPA方法名查询
         return reviewRepository.findByReviewStatus(status, pageable);}
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, PerformanceRepository performanceRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, MusicalRepository musicalRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
-        this.performanceRepository = performanceRepository;
+        this.musicalRepository = musicalRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ReviewResponse> getReviewsByPerformance(Long performanceId, int page, int size, Integer rating) {
-        validatePerformanceExists(performanceId);
+    public Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating) {
+        validateMusicalExists(musicalId);
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Review> reviewsPage;
         
         if (rating != null) {
-            reviewsPage = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, rating, pageable);
+            reviewsPage = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, rating, pageable);
         } else {
-            reviewsPage = reviewRepository.findByPerformanceIdOrderByCreatedAtDesc(performanceId, pageable);
+            reviewsPage = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, pageable);
         }
         
         return reviewsPage.map(this::convertToResponse);
@@ -75,10 +73,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewStatisticsResponse getReviewStatistics(Long performanceId) {
-        validatePerformanceExists(performanceId);
+    public ReviewStatisticsResponse getReviewStatistics(Long musicalId) {
+        validateMusicalExists(musicalId);
         
-        List<Object[]> results = reviewRepository.getReviewStatistics(performanceId);
+        List<Object[]> results = reviewRepository.getReviewStatistics(musicalId);
         
         ReviewStatisticsResponse response = new ReviewStatisticsResponse();
         
@@ -98,7 +96,7 @@ public class ReviewServiceImpl implements ReviewService {
         Double averageRating = result[1] != null ? ((Number) result[1]).doubleValue() : 0.0;
 
         // 计算各等级评分数量
-        RatingCounts counts = getRatingCounts(performanceId);
+        RatingCounts counts = getRatingCounts(musicalId);
 
         response.setTotalCount(totalCount);
         response.setAverageRating(Math.round(averageRating * 10.0) / 10.0); // 保留一位小数
@@ -114,7 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse createReview(ReviewRequest reviewRequest, String username) {
         // 如果是匿名用户，不查找User实体，直接创建评论
-        Performance performance = getPerformance(reviewRequest.getPerformanceId());
+        Musical musical = getMusical(reviewRequest.getMusicalId());
         
         Review review = new Review();
         review.setContent(reviewRequest.getContent());
@@ -126,14 +124,14 @@ public class ReviewServiceImpl implements ReviewService {
             User user = getUserByUsername(username);
             review.setUser(user);
             // 检查是否已经评价过
-            if (hasUserReviewed(username, reviewRequest.getPerformanceId())) {
+            if (hasUserReviewed(username, reviewRequest.getMusicalId())) {
                 throw new IllegalStateException("用户已经对该剧目评价过");
             }
         } else {
             // 匿名用户直接创建评论，不做重复检查
             review.setUser(null);
         }
-        review.setPerformance(performance);
+        review.setMusical(musical);
         
         review = reviewRepository.save(review);
         return convertToResponse(review);
@@ -154,7 +152,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 匿名用户允许更新任何评价（临时方案）
         
         // 验证是否还是同一个剧目（不允许更改评价的剧目）
-        if (!review.getPerformance().getId().equals(reviewRequest.getPerformanceId())) {
+        if (!review.getMusical().getId().equals(reviewRequest.getMusicalId())) {
             throw new IllegalArgumentException("不能更改评价的剧目");
         }
         
@@ -195,13 +193,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public boolean hasUserReviewed(String username, Long performanceId) {
+    public boolean hasUserReviewed(String username, Long musicalId) {
         if (username == null || username.equals("anonymous")) {
             return false; // 匿名用户或未登录用户
         }
         
         User user = getUserByUsername(username);
-        Review existingReview = reviewRepository.findByUserIdAndPerformanceId(user.getUserId(), performanceId);
+        Review existingReview = reviewRepository.findByUserIdAndMusicalId(user.getUserId(), musicalId);
         return existingReview != null;
     }
 
@@ -214,7 +212,7 @@ public class ReviewServiceImpl implements ReviewService {
             response.setContent(review.getContent());
             response.setRating(review.getRating());
             response.setCreatedAt(review.getCreatedAt());
-            response.setPerformanceId(review.getPerformance() != null ? review.getPerformance().getId() : null);
+            response.setMusicalId(review.getMusical() != null ? review.getMusical().getId() : null);
             response.setStatus(review.getReviewStatus()); // 添加状态字段
             
             if (review.getUser() != null) {
@@ -228,27 +226,27 @@ public class ReviewServiceImpl implements ReviewService {
                 response.setUserImage(null);
             }
             
-            if (review.getPerformance() != null) {
-                response.setPerformanceName(review.getPerformance().getName());
+            if (review.getMusical() != null) {
+                response.setMusicalName(review.getMusical().getName());
             }
         }
         
         return response;
     }
 
-    private RatingCounts getRatingCounts(Long performanceId) {
+    private RatingCounts getRatingCounts(Long musicalId) {
         RatingCounts counts = new RatingCounts();
-        counts.rating1 = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating2 = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, 2, Pageable.unpaged()).getTotalElements();
-        counts.rating3 = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, 3, Pageable.unpaged()).getTotalElements();
-        counts.rating4 = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, 4, Pageable.unpaged()).getTotalElements();
-        counts.rating5 = reviewRepository.findByPerformanceIdAndRatingOrderByCreatedAtDesc(performanceId, 5, Pageable.unpaged()).getTotalElements();
+        counts.rating1 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 1, Pageable.unpaged()).getTotalElements();
+        counts.rating2 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 2, Pageable.unpaged()).getTotalElements();
+        counts.rating3 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 3, Pageable.unpaged()).getTotalElements();
+        counts.rating4 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 4, Pageable.unpaged()).getTotalElements();
+        counts.rating5 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 5, Pageable.unpaged()).getTotalElements();
         return counts;
     }
 
-    private void validatePerformanceExists(Long performanceId) {
-        // 不再抛出异常，而是允许自动创建缺失的Performance
-        // 由getPerformance方法处理缺失情况
+    private void validateMusicalExists(Long musicalId) {
+        // 不再抛出异常，而是允许自动创建缺失的Musical
+        // 由getMusical方法处理缺失情况
     }
 
     private Review getReview(Long reviewId) {
@@ -261,9 +259,9 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
     }
 
-    private Performance getPerformance(Long performanceId) {
-        return performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new ResourceNotFoundException("剧目不存在: " + performanceId));
+    private Musical getMusical(Long musicalId) {
+        return musicalRepository.findById(musicalId)
+                .orElseThrow(() -> new ResourceNotFoundException("剧目不存在: " + musicalId));
     }
 
     private static class RatingCounts {

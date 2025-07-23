@@ -5,7 +5,7 @@ import lombok.Data;
 
 public class ReviewRequest {
     @NotNull(message = "剧目ID不能为空")
-    private Long performanceId;
+    private Long musicalId;
     
     @NotBlank(message = "评价内容不能为空")
     @Size(min = 1, max = 1000, message = "评价内容长度需在1-1000字符之间")
@@ -16,12 +16,12 @@ public class ReviewRequest {
     @Max(value = 5, message = "最高评分为5分")
     private Integer rating;
 
-    public Long getPerformanceId() {
-        return performanceId;
+    public Long getMusicalId() {
+        return musicalId;
     }
 
-    public void setPerformanceId(Long performanceId) {
-        this.performanceId = performanceId;
+    public void setMusicalId(Long musicalId) {
+        this.musicalId = musicalId;
     }
 
     public String getContent() {

@@ -16,8 +16,8 @@ public class ReviewResponse {
     private String username;
     private String userImage;
     private LocalDateTime createdAt;
-    private Long performanceId;
-    private String performanceName;
+    private Long musicalId;
+    private String musicalName;
     private Integer status; // 新增：审核状态 (0-待审核 1-已通过 2-违规)
 
     public String getFormattedDate() {
@@ -80,19 +80,19 @@ public class ReviewResponse {
         this.createdAt = createdAt;
     }
 
-    public Long getPerformanceId() {
-        return performanceId;
+    public Long getMusicalId() {
+        return musicalId;
     }
 
-    public void setPerformanceId(Long performanceId) {
-        this.performanceId = performanceId;
+    public void setMusicalId(Long musicalId) {
+        this.musicalId = musicalId;
     }
 
-    public String getPerformanceName() {
-        return performanceName;
+    public String getMusicalName() {
+        return musicalName;
     }
 
-    public void setPerformanceName(String performanceName) {
-        this.performanceName = performanceName;
+    public void setMusicalName(String musicalName) {
+        this.musicalName = musicalName;
     }
 }
