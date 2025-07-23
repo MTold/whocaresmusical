@@ -1,7 +1,6 @@
 package com.whocares.musicalapi.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -9,28 +8,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "user_favorites", 
+       uniqueConstraints = {
+           @UniqueConstraint(columnNames = {"user_id", "musical_id"})
+       })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Review {
+public class UserFavorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "评价内容不能为空")
-    @Size(min = 1, max = 1000, message = "评价内容长度需在1-1000字符之间")
-    @Column(length = 1000, nullable = false)
-    private String content;
-
-    @NotNull(message = "评分不能为空")
-    @Min(value = 1, message = "最低评分为1分")
-    @Max(value = 5, message = "最高评分为5分")
-    @Column(nullable = false)
-    private Integer rating;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
 
@@ -48,12 +39,10 @@ public class Review {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "review_status")  // 映射数据库列名
-    private Integer reviewStatus = 1;     // 默认值为1（正常状态）
-
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
     public Long getId() {
         return id;
@@ -61,22 +50,6 @@ public class Review {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
     }
 
     public User getUser() {
@@ -117,32 +90,5 @@ public class Review {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Integer getReviewStatus() {
-        return reviewStatus;
-    }
-
-    public void setReviewStatus(Integer reviewStatus) {
-        this.reviewStatus = reviewStatus;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }
