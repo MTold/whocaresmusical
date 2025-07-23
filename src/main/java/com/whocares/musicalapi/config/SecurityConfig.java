@@ -46,6 +46,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
                         .requestMatchers("/api/reviews/musical/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
+                        .requestMatchers("/api/favorites/**").authenticated()  // 收藏相关接口需要认证
+                        .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
