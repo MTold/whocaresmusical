@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
                         .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
                         .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
+                        .requestMatchers("/api/shows/**").permitAll()  // 允许查看剧场详情
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
                         .requestMatchers("/api/reviews/musical/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价

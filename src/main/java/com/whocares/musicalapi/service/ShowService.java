@@ -12,7 +12,7 @@ public interface ShowService {
     List<Show> getShowsByMusicalId(Long musicalId);
 
     // 根据剧院ID获取所有演出排期
-    List<Show> getShowsByTheatreId(Long theatreId);
+    List<Show> getShowsByTheaterId(Long theaterId);
 
     // 保存或更新演出排期
     Long saveOrUpdateShow(Show show);

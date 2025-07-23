@@ -54,6 +54,11 @@ public class MusicalController {
 //        return ResponseEntity.ok(musical);  // 返回找到的音乐剧
 //    }
 
+    @GetMapping("/{id}")
+    public Musical getMusicalById(@PathVariable Long id) {
+        return musicalService.getMusicalById(id);
+    }
+
     // 创建新音乐剧
     @PostMapping
     public ResponseEntity<Long> createMusical(@RequestBody Musical musical) {

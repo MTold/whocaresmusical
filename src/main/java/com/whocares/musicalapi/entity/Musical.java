@@ -27,6 +27,8 @@ public class Musical {
     @Column(name = "`imageUrl`")
     private String imageUrl;
 
+    @OneToMany(mappedBy = "musicalId", fetch = FetchType.LAZY)
+    private List<Show> shows;  // 演出排期集合
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
