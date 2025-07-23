@@ -33,8 +33,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         Page<Review> findByReviewStatus(Integer reviewStatus, Pageable pageable);
 
         // 可选：添加关联查询（如果需要剧目信息）
-        @Query("SELECT r FROM Review r LEFT JOIN FETCH r.performance WHERE r.reviewStatus = :status")
-        Page<Review> findByStatusWithPerformance(@Param("status") Integer status, Pageable pageable);
+        @Query("SELECT r FROM Review r LEFT JOIN FETCH r.musical WHERE r.reviewStatus = :status")
+        Page<Review> findByStatusWithMusical(@Param("status") Integer status, Pageable pageable);
 
     // 根据评分筛选评价
     Page<Review> findByMusicalIdAndRatingOrderByCreatedAtDesc(Long musicalId, Integer rating, Pageable pageable);
