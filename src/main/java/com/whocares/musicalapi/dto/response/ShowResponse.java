@@ -1,9 +1,11 @@
 package com.whocares.musicalapi.dto.response;
 
+import com.whocares.musicalapi.entity.Show;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class ShowResponse {
@@ -12,5 +14,6 @@ public class ShowResponse {
     private LocalDate date;  // 演出日期
     private LocalTime time;  // 演出日期
     private String cast;  // 演员名单
+    private List<Show> shows;
 }
 

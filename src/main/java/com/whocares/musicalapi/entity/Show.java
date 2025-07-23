@@ -14,15 +14,19 @@ public class Show {
     @Column(name = "id")
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "musical_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private Musical musical;
-
     @Column(name = "musical_id")
     private Long musicalId;
 
-    @Column(name = "theatre_id")
-    private Long theatreId;
+    @Column(name = "theater_id")
+    private Long theaterId;
+
+//    @ManyToOne
+//    @JoinColumn(name = "musical_id", referencedColumnName = "id")
+//    private Musical musical;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "theater_id", referencedColumnName = "id")
+//    private Theater theater;
 
     @Column(name = "date")
     private LocalDate date;
@@ -32,5 +36,4 @@ public class Show {
 
     @Column(name = "cast")
     private String cast;
-
 }

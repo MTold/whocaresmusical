@@ -23,7 +23,7 @@ public class MusicalServiceImpl implements MusicalService {
     @Autowired
     public MusicalServiceImpl(MusicalRepository musicalRepository, ShowRepository showRepository) {
         this.musicalRepository = musicalRepository;
-        this.showRepository = showRepository;  // Show相关的代码
+        this.showRepository = showRepository;
     }
 
     // 查询所有音乐剧
@@ -43,6 +43,11 @@ public class MusicalServiceImpl implements MusicalService {
             return musical.get();  // 返回音乐剧对象
         }
         return null;
+    }
+
+    @Override
+    public Musical getMusicalById(Long id) {
+        return musicalRepository.findById(id).orElse(null);
     }
 
     // 保存或更新音乐剧

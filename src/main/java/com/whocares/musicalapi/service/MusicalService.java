@@ -1,8 +1,6 @@
 package com.whocares.musicalapi.service;
 
-import com.whocares.musicalapi.dto.response.MusicalSummaryResponse;
 import com.whocares.musicalapi.entity.Musical;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -16,6 +14,9 @@ public interface MusicalService {
 
     // 添加或更新音乐剧
     Long saveOrUpdateMusical(Musical musical);
+
+    // 查询指定 id 的剧目
+    Musical getMusicalById(Long id);
 
     // 删除音乐剧
     void deleteMusical(Long id);

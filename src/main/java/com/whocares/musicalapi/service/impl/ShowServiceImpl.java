@@ -23,7 +23,9 @@ public class ShowServiceImpl implements ShowService {
     // 查询所有演出排期
     @Override
     public List<Show> findAllShows() {
-        return showRepository.findAll();
+        List<Show> shows = showRepository.findAllShows();
+        shows.forEach(System.out::println);
+        return showRepository.findAllShows();
     }
 
     // 根据音乐剧ID获取所有演出排期
@@ -34,8 +36,8 @@ public class ShowServiceImpl implements ShowService {
 
     // 根据剧院ID获取所有演出排期
     @Override
-    public List<Show> getShowsByTheatreId(Long theatreId) {
-        return showRepository.findByTheatreId(theatreId);
+    public List<Show> getShowsByTheaterId(Long theaterId) {
+        return showRepository.findByTheaterId(theaterId);
     }
 
     // 保存或更新演出排期
