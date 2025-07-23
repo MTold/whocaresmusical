@@ -4,19 +4,13 @@ import com.whocares.musicalapi.dto.request.ReviewRequest;
 import com.whocares.musicalapi.dto.response.ReviewResponse;
 import com.whocares.musicalapi.dto.response.ReviewStatisticsResponse;
 import com.whocares.musicalapi.entity.Review;
-import com.whocares.musicalapi.repository.ReviewRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 public interface ReviewService {
     
-    Page<ReviewResponse> getReviewsByPerformance(Long performanceId, int page, int size, Integer rating);
+    Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating);
     
     Page<ReviewResponse> getReviewsByUser(String username, int page, int size);
 
