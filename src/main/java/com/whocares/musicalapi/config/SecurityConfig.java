@@ -2,6 +2,9 @@ package com.whocares.musicalapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +23,7 @@ import com.whocares.musicalapi.security.jwt.JwtAuthenticationFilter;
 import com.whocares.musicalapi.security.jwt.JwtTokenProvider;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,16 +43,21 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 关键！放行所有OPTIONS请求
                         .requestMatchers("/api/musicals").permitAll()  // 允许查看剧目列表
                         .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
                         .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
                         .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
+                        .requestMatchers("/api/shows/**").permitAll()  // 允许查看剧场详情
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
                         .requestMatchers("/api/reviews/musical/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
+                        .requestMatchers("/api/favorites/**").authenticated()  // 收藏相关接口需要认证
+                        .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
+                        .requestMatchers("/api/reviews/by-status").permitAll()   // 管理员查看评论接口需要ADMIN角色
                         .anyRequest().authenticated()                  // 其他请求需要认证
                 )
                 .csrf(csrf -> csrf.disable())                         // 禁用CSRF
@@ -63,10 +72,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));  // 允许所有来源
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173"));  // 允许所有来源
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 允许的HTTP方法
         configuration.setAllowedHeaders(Arrays.asList("*"));         // 允许所有请求头
-        configuration.setAllowCredentials(true);                     // 允许凭据（如Cookie）
+        configuration.setAllowCredentials(true);// 允许凭据（如Cookie）
+        configuration.setExposedHeaders(List.of("Authorization"));  // 允许前端访问的响应头
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);     // 对所有路径应用CORS配置
@@ -88,3 +98,4 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 }
+

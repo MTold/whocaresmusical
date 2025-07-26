@@ -9,9 +9,6 @@ import java.util.List;
 @Repository
 public interface MusicalRepository extends JpaRepository<Musical, Long> {
 
-    // 获取所有音乐剧（按名称升序排列）
-    List<Musical> findAllByOrderByNameAsc();  // 返回所有按名称升序排序的音乐剧
-
     // 根据名称模糊查询所有音乐剧
     List<Musical> findByNameContainingIgnoreCase(String name);  // 模糊查询音乐剧名称
 
@@ -20,6 +17,9 @@ public interface MusicalRepository extends JpaRepository<Musical, Long> {
 
     // 查询所有非原创的音乐剧（不分页）
     List<Musical> findByIsOriginalFalse();  // 查询所有非原创音乐剧
+
+    // 查询指定 id 的剧目
+    Musical findById(long id);
 
     //    // 获取音乐剧的平均评分和数量
 //    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.musical.id = :musicalId")
