@@ -1,0 +1,27 @@
+package com.whocares.musicalapi.repository;
+
+import com.whocares.musicalapi.entity.Review;
+import com.whocares.musicalapi.entity.ShopReview;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ShopReviewRepository extends JpaRepository<ShopReview, Long> {
+    // 根据店铺名称查找评价
+    Page<ShopReview> findByShopNameOrderByCreatedAtDesc(String shopName, Pageable pageable);
+
+    // 根据用户ID查找评价
+    Page<ShopReview> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    // 获取用户的某个评价（用于检查是否已评价过）
+    ShopReview findByUserIdAndShopName(Long userId, String shopName);
+
+    // 获取所有评价（管理后台用）
+    Page<ShopReview> findAllByOrderByCreatedAtDesc(Pageable pageable);
+}
