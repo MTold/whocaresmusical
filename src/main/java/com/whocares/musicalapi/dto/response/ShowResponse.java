@@ -9,11 +9,24 @@ import java.util.List;
 
 @Data
 public class ShowResponse {
-    private Long id;  // 演出ID
-    private Long musicalId;  // 音乐剧ID
-    private LocalDate date;  // 演出日期
-    private LocalTime time;  // 演出日期
-    private String cast;  // 演员名单
-    private List<Show> shows;
+    private Long id;
+    private Long theaterId;
+    private Long musicalId;
+    private String musicalName; // 新增这个字段
+    private LocalDate date;
+    private LocalTime time;
+    private String cast;
+
+    // 构造函数用于 JPQL 查询
+    public ShowResponse(Long id, Long theaterId, Long musicalId, String musicalName,
+                        LocalDate date, LocalTime time, String cast) {
+        this.id = id;
+        this.theaterId = theaterId;
+        this.musicalId = musicalId;
+        this.musicalName = musicalName;
+        this.date = date;
+        this.time = time;
+        this.cast = cast;
+    }
 }
 

@@ -18,6 +18,8 @@ public interface MusicalService {
     // 查询指定 id 的剧目
     Musical getMusicalById(Long id);
 
+
+
     // 删除音乐剧
     void deleteMusical(Long id);
 

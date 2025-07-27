@@ -1,5 +1,6 @@
 package com.whocares.musicalapi.service.impl;
 
+import com.whocares.musicalapi.dto.response.ShowResponse;
 import com.whocares.musicalapi.entity.Show;
 import com.whocares.musicalapi.repository.ShowRepository;
 import com.whocares.musicalapi.service.ShowService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,21 +24,31 @@ public class ShowServiceImpl implements ShowService {
 
     // 查询所有演出排期
     @Override
-    public List<Show> findAllShows() {
-        List<Show> shows = showRepository.findAllShows();
+    public List<ShowResponse> findAllShows() {
+        List<ShowResponse> shows = showRepository.findAllShows();
         return showRepository.findAllShows();
     }
 
     // 根据音乐剧ID获取所有演出排期
     @Override
-    public List<Show> getShowsByMusicalId(Long musicalId) {
+    public List<ShowResponse> getShowsByMusicalId(Long musicalId) {
         return showRepository.findByMusicalId(musicalId);
     }
 
     // 根据剧院ID获取所有演出排期
     @Override
-    public List<Show> getShowsByTheaterId(Long theaterId) {
+    public List<ShowResponse> getShowsByTheaterId(Long theaterId) {
         return showRepository.findByTheaterId(theaterId);
+    }
+
+    @Override
+    public List<ShowResponse> getShowsByYearAndMonth(int year, int month) {
+        return showRepository.findByYearAndMonth(year,month);
+    }
+
+    @Override
+    public List<ShowResponse> getShowsByDate(LocalDate date) {
+        return showRepository.findByDate(date);
     }
 
     // 保存或更新演出排期

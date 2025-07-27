@@ -1,5 +1,5 @@
 package com.whocares.musicalapi.controller;
-import com.whocares.musicalapi.entity.Show;
+import com.whocares.musicalapi.dto.response.ShowResponse;
 import com.whocares.musicalapi.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,8 @@ public class ShowController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Show>> getAllShows() {
-        List<Show> shows = showService.findAllShows();
+    public ResponseEntity<List<ShowResponse>> getAllShows() {
+        List<ShowResponse> shows = showService.findAllShows();
         if (shows .isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -29,14 +29,22 @@ public class ShowController {
     }
 
     @GetMapping("/musical/{musicalId}")
-    public ResponseEntity<List<Show>> getShowsByMusicalId(@PathVariable Long musicalId) {
-        List<Show> shows = showService.getShowsByMusicalId(musicalId);
+    public ResponseEntity<List<ShowResponse>> getShowsByMusicalId(@PathVariable Long musicalId) {
+        List<ShowResponse> shows = showService.getShowsByMusicalId(musicalId);
         return ResponseEntity.ok(shows);
     }
 
     @GetMapping("/theater/{theaterId}")
-    public ResponseEntity<List<Show>> getShowsByTheaterId(@PathVariable Long theaterId) {
-        List<Show> shows = showService.getShowsByTheaterId(theaterId);
+    public ResponseEntity<List<ShowResponse>> getShowsByTheaterId(@PathVariable Long theaterId) {
+        List<ShowResponse> shows = showService.getShowsByTheaterId(theaterId);
         return ResponseEntity.ok(shows);
     }
+
+    @GetMapping("/{year}/{month}")
+    public List<ShowResponse> getShowsByYearAndMonth(@PathVariable int year, @PathVariable int month) {
+        return showService.getShowsByYearAndMonth(year, month);
+    }
+
+
+
 }
