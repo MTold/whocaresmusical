@@ -9,9 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 
 public interface ReviewService {
-    
+
     Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating);
-    
+
     Page<ReviewResponse> getReviewsByUser(String username, int page, int size);
 
     // 添加新的方法来按状态分类获取所有评价
@@ -20,12 +20,14 @@ public interface ReviewService {
 
     Page<Review> findByReviewStatus(Integer status, Pageable pageable); // 接口声明
     ReviewStatisticsResponse getReviewStatistics(Long performanceId);
-    
+
     ReviewResponse createReview(ReviewRequest reviewRequest, String username);
-    
+
     ReviewResponse updateReview(Long reviewId, ReviewRequest reviewRequest, String username);
-    
+
+    ReviewResponse updateReviewStatus(Long reviewId, Integer status, String username);
+
     void deleteReview(Long reviewId, String username, Iterable<? extends GrantedAuthority> authorities);
-    
+
     boolean hasUserReviewed(String username, Long performanceId);
 }

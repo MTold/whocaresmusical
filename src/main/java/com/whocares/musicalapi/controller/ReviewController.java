@@ -1,6 +1,7 @@
 package com.whocares.musicalapi.controller;
 
 import com.whocares.musicalapi.dto.request.ReviewRequest;
+import com.whocares.musicalapi.dto.request.ReviewStatusRequest;
 import com.whocares.musicalapi.dto.response.ReviewResponse;
 import com.whocares.musicalapi.dto.response.ReviewStatisticsResponse;
 import com.whocares.musicalapi.entity.Review;
@@ -46,11 +47,11 @@ public class ReviewController {
         }
         return "anonymous"; // 没有令牌或令牌格式不正确
     }
-    
+
     private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && 
-            !authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication != null && authentication.isAuthenticated() &&
+                !authentication.getPrincipal().equals("anonymousUser")) {
             return authentication.getName();
         }
         return "anonymous";
@@ -69,16 +70,16 @@ public class ReviewController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
 
-            // 创建Pageable对象
-            Pageable pageable = PageRequest.of(
+        // 创建Pageable对象
+        Pageable pageable = PageRequest.of(
                 page,
                 size,
                 Sort.by(Sort.Order.desc("createdAt")) // 按创建时间降序
-            );
+        );
 
-            return ResponseEntity.ok(reviewService.findByReviewStatus(status, pageable));
-        }
-            //return reviewService.getReviewsByStatus(status);
+        return ResponseEntity.ok(reviewService.findByReviewStatus(status, pageable));
+    }
+    //return reviewService.getReviewsByStatus(status);
 
     //}
 
@@ -123,6 +124,15 @@ public class ReviewController {
             @Valid @RequestBody ReviewRequest reviewRequest) {
         String username = getCurrentUsername();
         return ResponseEntity.ok(reviewService.updateReview(reviewId, reviewRequest, username));
+    }
+
+    // 更新评价状态
+    @PatchMapping("/{reviewId}/status")
+    public ResponseEntity<ReviewResponse> updateReviewStatus(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewStatusRequest statusRequest) {
+        String username = getCurrentUsername();
+        return ResponseEntity.ok(reviewService.updateReviewStatus(reviewId, statusRequest.getStatus(), username));
     }
 
     // 删除评价

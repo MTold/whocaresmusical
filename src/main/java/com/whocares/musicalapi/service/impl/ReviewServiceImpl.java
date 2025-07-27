@@ -48,16 +48,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getReviewsByMusical(Long musicalId, int page, int size, Integer rating) {
         validateMusicalExists(musicalId);
-        
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Review> reviewsPage;
-        
+
         if (rating != null) {
             reviewsPage = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, rating, pageable);
         } else {
             reviewsPage = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, pageable);
         }
-        
+
         return reviewsPage.map(this::convertToResponse);
     }
 
@@ -67,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
         User user = getUserByUsername(username);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Review> reviewsPage = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId(), pageable);
-        
+
         return reviewsPage.map(this::convertToResponse);
     }
 
@@ -75,11 +75,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public ReviewStatisticsResponse getReviewStatistics(Long musicalId) {
         validateMusicalExists(musicalId);
-        
+
         List<Object[]> results = reviewRepository.getReviewStatistics(musicalId);
-        
+
         ReviewStatisticsResponse response = new ReviewStatisticsResponse();
-        
+
         if (results.isEmpty() || results.get(0)[0] == null) {
             response.setTotalCount(0L);
             response.setAverageRating(0.0);
@@ -113,12 +113,12 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse createReview(ReviewRequest reviewRequest, String username) {
         // 如果是匿名用户，不查找User实体，直接创建评论
         Musical musical = getMusical(reviewRequest.getMusicalId());
-        
+
         Review review = new Review();
         review.setContent(reviewRequest.getContent());
         review.setRating(reviewRequest.getRating());
-        review.setReviewStatus(1); // 默认状态为正常
-        
+        review.setReviewStatus(0); // 默认状态为正常
+
         // 针对匿名用户，设置user为null，让数据库user_id为null
         if (!username.equals("anonymous")) {
             User user = getUserByUsername(username);
@@ -132,7 +132,7 @@ public class ReviewServiceImpl implements ReviewService {
             review.setUser(null);
         }
         review.setMusical(musical);
-        
+
         review = reviewRepository.save(review);
         return convertToResponse(review);
     }
@@ -140,7 +140,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse updateReview(Long reviewId, ReviewRequest reviewRequest, String username) {
         Review review = getReview(reviewId);
-        
+
         // 对于已登录用户的验证逻辑（暂时禁用）
         if (!username.equals("anonymous")) {
             User user = getUserByUsername(username);
@@ -150,15 +150,15 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
         // 匿名用户允许更新任何评价（临时方案）
-        
+
         // 验证是否还是同一个剧目（不允许更改评价的剧目）
         if (!review.getMusical().getId().equals(reviewRequest.getMusicalId())) {
             throw new IllegalArgumentException("不能更改评价的剧目");
         }
-        
+
         review.setContent(reviewRequest.getContent());
         review.setRating(reviewRequest.getRating());
-        
+
         review = reviewRepository.save(review);
         return convertToResponse(review);
     }
@@ -168,11 +168,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Long reviewId, String username, Iterable<? extends GrantedAuthority> authorities) {
         Review review = getReview(reviewId);
-        
+
         // 对于已登录用户的验证逻辑（暂时禁用）
         if (!username.equals("anonymous")) {
             User user = getUserByUsername(username);
-            
+
             // 检查是否是评价所有者或管理员 - 暂时禁用或简化
             if (review.getUser() != null && !review.getUser().getUserId().equals(user.getUserId())) {
                 boolean isAdmin = false;
@@ -188,8 +188,16 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
         // 匿名用户允许删除任何评价（临时方案）
-        
+
         reviewRepository.delete(review);
+    }
+
+    @Override
+    public ReviewResponse updateReviewStatus(Long reviewId, Integer status, String username) {
+        Review review = getReview(reviewId);
+        review.setReviewStatus(status);
+        review = reviewRepository.save(review);
+        return convertToResponse(review);
     }
 
     @Override
@@ -197,7 +205,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (username == null || username.equals("anonymous")) {
             return false; // 匿名用户或未登录用户
         }
-        
+
         User user = getUserByUsername(username);
         Review existingReview = reviewRepository.findByUserIdAndMusicalId(user.getUserId(), musicalId);
         return existingReview != null;
@@ -205,7 +213,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private ReviewResponse convertToResponse(Review review) {
         ReviewResponse response = new ReviewResponse();
-        
+
         // Safe field mapping with null checks
         if (review != null) {
             response.setId(review.getId());
@@ -214,7 +222,7 @@ public class ReviewServiceImpl implements ReviewService {
             response.setCreatedAt(review.getCreatedAt());
             response.setMusicalId(review.getMusical() != null ? review.getMusical().getId() : null);
             response.setStatus(review.getReviewStatus()); // 添加状态字段
-            
+
             if (review.getUser() != null) {
                 response.setUserId(review.getUser().getUserId());
                 response.setUsername(review.getUser().getUsername());
@@ -225,12 +233,12 @@ public class ReviewServiceImpl implements ReviewService {
                 response.setUsername("匿名用户");
                 response.setUserImage(null);
             }
-            
+
             if (review.getMusical() != null) {
                 response.setMusicalName(review.getMusical().getName());
             }
         }
-        
+
         return response;
     }
 
@@ -266,7 +274,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private static class RatingCounts {
         long rating1, rating2, rating3, rating4, rating5;
-        
+
         long getRating1() { return rating1; }
         long getRating2() { return rating2; }
         long getRating3() { return rating3; }

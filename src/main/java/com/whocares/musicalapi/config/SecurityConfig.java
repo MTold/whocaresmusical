@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
                         .requestMatchers("/api/reviews/musical/*/statistics").permitAll()  // 允许查看评价统计
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
+                        .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
                         .requestMatchers("/api/favorites/**").authenticated()  // 收藏相关接口需要认证
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
@@ -62,10 +63,10 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf.disable())                         // 禁用CSRF
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // 无状态会话
-        
+
         // 添加JWT过滤器
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
 
@@ -73,7 +74,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173"));  // 允许所有来源
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 允许的HTTP方法
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));  // 允许的HTTP方法
         configuration.setAllowedHeaders(Arrays.asList("*"));         // 允许所有请求头
         configuration.setAllowCredentials(true);// 允许凭据（如Cookie）
         configuration.setExposedHeaders(List.of("Authorization"));  // 允许前端访问的响应头
@@ -98,4 +99,5 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 }
+
 
