@@ -24,7 +24,6 @@ public class ShowServiceImpl implements ShowService {
     @Override
     public List<Show> findAllShows() {
         List<Show> shows = showRepository.findAllShows();
-        shows.forEach(System.out::println);
         return showRepository.findAllShows();
     }
 

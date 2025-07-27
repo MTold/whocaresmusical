@@ -1,38 +1,38 @@
 package com.whocares.musicalapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Set;
+import lombok.Getter;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name = "theaters")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Theater {
+
+    @Getter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
     private Long id;
 
-    @Column(name="name")
+    @Column(name="name",nullable = false)
     private String name;
 
-    @Column(name="location_name")
+    @Column(name = "location_name", nullable = false)
     private String locationName;
 
-    @Column(name="latitude")
+    @Column(name = "latitude",nullable = false)
     private Double latitude;
 
-    @Column(name="longitude")
+    @Column(name = "longitude",nullable = false)
     private Double longitude;
 
-    @Column(name="image")
-    private String image;
+    @Column(name = "`imageUrl`")
+    private String imageUrl;
 
     @ManyToMany(mappedBy = "theaters")
     private Set<Shop> shops;
+
+    public void setId(Long id) {
+
+    }
 }
