@@ -14,16 +14,12 @@ public class Show {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "musical_id")
-    private Long musicalId;
-
     @Column(name = "theater_id")
     private Long theaterId;
 
-//    @ManyToOne
-//    @JoinColumn(name = "musical_id", referencedColumnName = "id")
-//    private Musical musical;
-//
+    @Column(name = "musical_id", insertable = false, updatable = false)
+    private Long musicalId;
+
 //    @ManyToOne
 //    @JoinColumn(name = "theater_id", referencedColumnName = "id")
 //    private Theater theater;
