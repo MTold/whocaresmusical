@@ -105,4 +105,27 @@ public class UserService {
         return userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("用户不存在"));
     }
+
+    public User updateUser(User updatedUser, String username) {
+        User user = getCurrentUser(username);
+        
+        // 更新用户信息（不包括用户名和密码）
+        if (updatedUser.getEmail() != null) {
+            user.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getPhone() != null) {
+            user.setPhone(updatedUser.getPhone());
+        }
+        if (updatedUser.getGender() != null) {
+            user.setGender(updatedUser.getGender());
+        }
+        if (updatedUser.getBirthday() != null) {
+            user.setBirthday(updatedUser.getBirthday());
+        }
+        if (updatedUser.getUserImage() != null) {
+            user.setUserImage(updatedUser.getUserImage());
+        }
+        
+        return userRepository.save(user);
+    }
 }
