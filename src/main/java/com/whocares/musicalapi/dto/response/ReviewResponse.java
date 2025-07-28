@@ -18,7 +18,7 @@ public class ReviewResponse {
     private LocalDateTime createdAt;
     private Long musicalId;
     private String musicalName;
-    private Integer status; // 新增：审核状态 (0-待审核 1-已通过 2-违规)
+    private Integer reviewStatus; // 新增：审核状态 (0-待审核 1-已通过 2-违规)
 
     public String getFormattedDate() {
         return createdAt.toString(); // 或使用DateTimeFormatter格式化

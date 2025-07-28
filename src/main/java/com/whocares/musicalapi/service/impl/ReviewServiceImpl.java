@@ -38,6 +38,16 @@ public class ReviewServiceImpl implements ReviewService {
         // 方法1：直接使用JPA方法名查询
         return reviewRepository.findByReviewStatus(status, pageable);}
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getReviewsByStatus(Integer status, Pageable pageable) {
+        // 使用带关联查询的方法获取评价数据
+        Page<Review> reviewsPage = reviewRepository.findByReviewStatusWithUserAndMusical(status, pageable);
+
+        // 复用现有的convertToResponse方法进行数据转换
+        return reviewsPage.map(this::convertToResponse);
+    }
+
     public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, MusicalRepository musicalRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
@@ -53,9 +63,9 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewsPage;
 
         if (rating != null) {
-            reviewsPage = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, rating, pageable);
+            reviewsPage = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, rating, 1, pageable);
         } else {
-            reviewsPage = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, pageable);
+            reviewsPage = reviewRepository.findByMusicalIdAndReviewStatusOrderByCreatedAtDesc(musicalId, 1, pageable);
         }
 
         return reviewsPage.map(this::convertToResponse);
@@ -221,7 +231,7 @@ public class ReviewServiceImpl implements ReviewService {
             response.setRating(review.getRating());
             response.setCreatedAt(review.getCreatedAt());
             response.setMusicalId(review.getMusical() != null ? review.getMusical().getId() : null);
-            response.setStatus(review.getReviewStatus()); // 添加状态字段
+            response.setReviewStatus(review.getReviewStatus()); // 添加状态字段
 
             if (review.getUser() != null) {
                 response.setUserId(review.getUser().getUserId());
@@ -244,11 +254,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     private RatingCounts getRatingCounts(Long musicalId) {
         RatingCounts counts = new RatingCounts();
-        counts.rating1 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating2 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 2, Pageable.unpaged()).getTotalElements();
-        counts.rating3 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 3, Pageable.unpaged()).getTotalElements();
-        counts.rating4 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 4, Pageable.unpaged()).getTotalElements();
-        counts.rating5 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 5, Pageable.unpaged()).getTotalElements();
+        counts.rating1 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 1, 1, Pageable.unpaged()).getTotalElements();
+        counts.rating2 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 2, 1, Pageable.unpaged()).getTotalElements();
+        counts.rating3 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 3, 1, Pageable.unpaged()).getTotalElements();
+        counts.rating4 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 4, 1, Pageable.unpaged()).getTotalElements();
+        counts.rating5 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 5, 1, Pageable.unpaged()).getTotalElements();
         return counts;
     }
 
