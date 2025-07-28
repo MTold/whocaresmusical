@@ -40,9 +40,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 关键！放行所有OPTIONS请求
-                        .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/api/reviews/by-status").permitAll()   // 管理员查看评论接口需要ADMIN角色
+                        .requestMatchers("/api/news").permitAll()  // 允许查看资讯详情
+                        .requestMatchers("/api/news/**").permitAll()  // 允许查看特定资讯详情
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
                         .requestMatchers("/api/musicals").permitAll()  // 允许查看剧目列表
                         .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
@@ -57,7 +58,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
+                        .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
                         .anyRequest().authenticated()                  // 其他请求需要认证.cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
 
 
