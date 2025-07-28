@@ -1,8 +1,10 @@
 package com.whocares.musicalapi.service;
 
+import com.whocares.musicalapi.entity.Shop;
 import com.whocares.musicalapi.entity.Theater;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TheaterService {
 
@@ -18,4 +20,9 @@ public interface TheaterService {
     //删除剧院
     void deleteTheaterById(Long theaterId);
 
+    List<Shop> findShopsByTheaterId(Long theaterId);
+
+    List<Shop> findShopsByTheaterIdAndCategory(Long theaterId , Integer category);
+
+    Theater findTheaterById(Long id);
 }
