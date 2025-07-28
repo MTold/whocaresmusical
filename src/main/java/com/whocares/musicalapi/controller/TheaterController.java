@@ -1,7 +1,6 @@
 package com.whocares.musicalapi.controller;
 
 
-import com.whocares.musicalapi.entity.Shop;
 import com.whocares.musicalapi.entity.Theater;
 import com.whocares.musicalapi.service.TheaterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 //表示这是一个 RESTful Web 服务控制器。它是 @Controller和@ResponseBody 的组合注解。所有返回值都会自动序列化为 JSON（或其他格式）并直接写入 HTTP 响应体中。
 @RestController
@@ -53,25 +51,5 @@ public class TheaterController {
         return ResponseEntity.noContent().build();
     }
 
-    //根据id返回剧院
-    @GetMapping("/{id}")
-    public ResponseEntity<Theater> getTheaterById(@PathVariable Long id) {
-        Theater theater = theaterService.findTheaterById(id);
-        return ResponseEntity.ok(theater);
-    }
-
-    //根据剧院查找店铺
-    @GetMapping("/{theaterId}/shops")
-    public ResponseEntity<List<Shop>> getShopsByTheaterId(@PathVariable Long theaterId) {
-        List<Shop> shops = theaterService.findShopsByTheaterId(theaterId);
-        return ResponseEntity.ok(shops);
-    }
-
-    //根据剧院和类别查找店铺
-    @GetMapping("/{theaterId}/shops/{category}")
-    public ResponseEntity<List<Shop>> getShopsByTheaterIdAndCategory(@PathVariable Long theaterId , @PathVariable Integer category) {
-        List<Shop> shops = theaterService.findShopsByTheaterIdAndCategory(theaterId , category);
-        return ResponseEntity.ok(shops);
-    }
 
 }
