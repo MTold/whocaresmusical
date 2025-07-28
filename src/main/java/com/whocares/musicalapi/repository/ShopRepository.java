@@ -9,6 +9,7 @@ import java.util.Set;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
-    //根据剧院id查询所有店铺
-    Set<Shop> findShopsByTheatersId(Integer theaterId);
+
+
+
 }

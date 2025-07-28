@@ -1,11 +1,13 @@
 package com.whocares.musicalapi.service.impl;
+import com.whocares.musicalapi.entity.Shop;
 import com.whocares.musicalapi.entity.Theater;
 import com.whocares.musicalapi.repository.TheaterRepository;
 import com.whocares.musicalapi.service.TheaterService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,4 +39,26 @@ public class TheaterServiceImpl implements TheaterService {
     @Override
     //删除剧院
     public void deleteTheaterById(Long Id){theaterRepository.deleteById(Id);}
+
+    //根据剧院id查找店铺
+    @Override
+    public List<Shop> findShopsByTheaterId(Long theaterId) {
+        Theater theater = theaterRepository.findById(theaterId).orElse(null);
+        return theater.getShops();
+    }
+
+    @Override
+    public List<Shop> findShopsByTheaterIdAndCategory(Long theaterId, Integer category) {
+        Theater theater = theaterRepository.findById(theaterId).orElse(null);
+        List<Shop> shops = theater.getShops();
+        return shops.stream()  // 创建流
+                .filter(shop -> Objects.equals(shop.getCategory(), category))  // 筛选category等于指定值的Shop
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Theater findTheaterById(Long id) {
+        return theaterRepository.findById(id).orElse(null);
+    }
+
 }

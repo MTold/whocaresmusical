@@ -14,8 +14,4 @@ public class ShopServiceImpl implements ShopService {
     @Autowired
     private ShopRepository shopRepository;
 
-    @Override
-    public Set<Shop> getShopsByTheaterId(Integer theaterId) {
-        return shopRepository.findShopsByTheatersId(theaterId);
-    }
 }

@@ -9,5 +9,5 @@ public class TheaterResponse {
     private String location_name;
     private long longitude;
     private long latitude;
-    private String imageUr;
+    private String imageUrl;
 }
