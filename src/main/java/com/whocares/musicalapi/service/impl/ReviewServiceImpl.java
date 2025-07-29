@@ -112,18 +112,19 @@ public class ReviewServiceImpl implements ReviewService {
         Object[] result = results.get(0);
         Long totalCount = ((Number) result[0]).longValue();
         Double averageRating = result[1] != null ? ((Number) result[1]).doubleValue() : 0.0;
-
-        // 计算各等级评分数量
-        RatingCounts counts = getRatingCounts(musicalId);
+        long rating1Count    = result[2] != null ? ((Number) result[2]).longValue() : 0L;
+        long rating2Count    = result[3] != null ? ((Number) result[3]).longValue() : 0L;
+        long rating3Count    = result[4] != null ? ((Number) result[4]).longValue() : 0L;
+        long rating4Count    = result[5] != null ? ((Number) result[5]).longValue() : 0L;
+        long rating5Count    = result[6] != null ? ((Number) result[6]).longValue() : 0L;
 
         response.setTotalCount(totalCount);
-        response.setAverageRating(Math.round(averageRating * 10.0) / 10.0); // 保留一位小数
-        response.setRating1Count(counts.getRating1());
-        response.setRating2Count(counts.getRating2());
-        response.setRating3Count(counts.getRating3());
-        response.setRating4Count(counts.getRating4());
-        response.setRating5Count(counts.getRating5());
-
+        response.setAverageRating(Math.round(averageRating * 10.0) / 10.0);
+        response.setRating1Count(rating1Count);
+        response.setRating2Count(rating2Count);
+        response.setRating3Count(rating3Count);
+        response.setRating4Count(rating4Count);
+        response.setRating5Count(rating5Count);
         return response;
     }
 
@@ -135,7 +136,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = new Review();
         review.setContent(reviewRequest.getContent());
         review.setRating(reviewRequest.getRating());
-        review.setReviewStatus(0); // 默认状态为正常
+        review.setReviewStatus(1); // 默认状态为正常
 
         // 针对匿名用户，设置user为null，让数据库user_id为null
         if (!username.equals("anonymous")) {
@@ -260,7 +261,7 @@ public class ReviewServiceImpl implements ReviewService {
         return response;
     }
 
-    private RatingCounts getRatingCounts(Long musicalId) {
+    /*private RatingCounts getRatingCounts(Long musicalId) {
         RatingCounts counts = new RatingCounts();
         
         // 获取所有评价后手动过滤状态
@@ -283,7 +284,7 @@ public class ReviewServiceImpl implements ReviewService {
             .count();
         
         return counts;
-    }
+    }*/
 
     private void validateMusicalExists(Long musicalId) {
         // 不再抛出异常，而是允许自动创建缺失的Musical
