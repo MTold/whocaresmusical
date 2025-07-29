@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
                         .requestMatchers("/api/musicals").permitAll()  // 允许查看剧目列表
                         .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
+                        .requestMatchers("/api/shows/**").permitAll()  // 允许查看演出详情
                         .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
                         .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
