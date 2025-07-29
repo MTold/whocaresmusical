@@ -35,6 +35,12 @@ public class Musical {
     @Column(name = "venue")
     private String venue;
 
+    @Column(name = "genre")
+    private String genre;
+
+    @Column(name = "average_rating")
+    private Double averageRating;
+
 //    @OneToMany(mappedBy = "musicalId", fetch = FetchType.LAZY)
 //    private List<Show> shows;  // 演出排期集合
 

@@ -29,5 +29,8 @@ public interface MusicalService {
 
     // 获取所有非原创的音乐剧
     List<Musical> getNonOriginalMusicals();
+
+    // 获取按评分排序的前10个音乐剧（null转为0，排除0分剧目）
+    List<Musical> getTopRatedMusicals(int limit);
 }
 

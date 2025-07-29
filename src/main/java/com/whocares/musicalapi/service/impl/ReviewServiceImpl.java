@@ -13,6 +13,7 @@ import com.whocares.musicalapi.repository.UserRepository;
 import com.whocares.musicalapi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getReviewsByStatus(Integer status, Pageable pageable) {
         // 使用带关联查询的方法获取评价数据
-        Page<Review> reviewsPage = reviewRepository.findByReviewStatusWithUserAndMusical(status, pageable);
+        Page<Review> reviewsPage = reviewRepository.findByStatusWithMusical(status, pageable);
 
         // 复用现有的convertToResponse方法进行数据转换
         return reviewsPage.map(this::convertToResponse);
@@ -63,12 +64,19 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewsPage;
 
         if (rating != null) {
-            reviewsPage = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, rating, 1, pageable);
+            // 使用已存在的方法，但需要手动过滤状态
+            reviewsPage = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, rating, pageable);
         } else {
-            reviewsPage = reviewRepository.findByMusicalIdAndReviewStatusOrderByCreatedAtDesc(musicalId, 1, pageable);
+            reviewsPage = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, pageable);
         }
 
-        return reviewsPage.map(this::convertToResponse);
+        // 手动过滤已通过的评价（状态为1）
+        List<Review> filteredReviews = reviewsPage.getContent().stream()
+            .filter(review -> review.getReviewStatus() != null && review.getReviewStatus() == 1)
+            .toList();
+        
+        return new PageImpl<>(filteredReviews, pageable, filteredReviews.size())
+            .map(this::convertToResponse);
     }
 
     @Override
@@ -254,11 +262,26 @@ public class ReviewServiceImpl implements ReviewService {
 
     private RatingCounts getRatingCounts(Long musicalId) {
         RatingCounts counts = new RatingCounts();
-        counts.rating1 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 1, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating2 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 2, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating3 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 3, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating4 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 4, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating5 = reviewRepository.findByMusicalIdAndRatingAndReviewStatusOrderByCreatedAtDesc(musicalId, 5, 1, Pageable.unpaged()).getTotalElements();
+        
+        // 获取所有评价后手动过滤状态
+        List<Review> allReviews = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, Pageable.unpaged()).getContent();
+        
+        counts.rating1 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 1)
+            .count();
+        counts.rating2 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 2)
+            .count();
+        counts.rating3 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 3)
+            .count();
+        counts.rating4 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 4)
+            .count();
+        counts.rating5 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 5)
+            .count();
+        
         return counts;
     }
 

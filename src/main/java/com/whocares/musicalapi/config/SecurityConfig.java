@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
                         .requestMatchers("/api/messages").permitAll()  // 允许查看消息
                         .requestMatchers("/api/messages/*").permitAll()  // 允许查看特定消息
+                        .requestMatchers("/api/recommendations/**").permitAll()  // 允许匿名访问推荐API
                         .requestMatchers("/api/favorites/**").authenticated()  // 收藏相关接口需要认证
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
