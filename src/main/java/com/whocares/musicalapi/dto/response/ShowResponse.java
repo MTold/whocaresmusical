@@ -12,17 +12,19 @@ public class ShowResponse {
     private Long id;
     private Long theaterId;
     private Long musicalId;
-    private String musicalName; // 新增这个字段
+    private String musicalName;
+    private String theaterName;
     private LocalDate date;
     private LocalTime time;
     private String cast;
 
     // 构造函数用于 JPQL 查询
     public ShowResponse(Long id, Long theaterId, Long musicalId, String musicalName,
-                        LocalDate date, LocalTime time, String cast) {
+                        String theaterName,LocalDate date, LocalTime time, String cast) {
         this.id = id;
         this.theaterId = theaterId;
         this.musicalId = musicalId;
+        this.theaterName = theaterName;
         this.musicalName = musicalName;
         this.date = date;
         this.time = time;
