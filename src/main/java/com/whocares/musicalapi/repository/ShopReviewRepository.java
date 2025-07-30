@@ -14,14 +14,18 @@ import java.util.List;
 @Repository
 public interface ShopReviewRepository extends JpaRepository<ShopReview, Long> {
     // 根据店铺名称查找评价
-    Page<ShopReview> findByShopNameOrderByCreatedAtDesc(String shopName, Pageable pageable);
+    List<ShopReview> findByShopIdOrderByCreatedAtDesc(Long shopId);
 
     // 根据用户ID查找评价
-    Page<ShopReview> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    List<ShopReview> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     // 获取用户的某个评价（用于检查是否已评价过）
-    ShopReview findByUserIdAndShopName(Long userId, String shopName);
+    ShopReview findByUserIdAndShopId(Long userId, Long shopId);
 
     // 获取所有评价（管理后台用）
     Page<ShopReview> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    //根据评价状态查询评价
+    Page<ShopReview> findByReviewStatus(Integer reviewStatus, Pageable pageable);
+
 }

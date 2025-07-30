@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ShopReviewRequest {
-    @NotNull(message = "店铺名称不能为空")
-    private String shopName;
+    @NotNull(message = "店铺id不能为空")
+    private Long shopId;
 
     @NotBlank(message = "评价内容不能为空")
     @Size(min = 1, max = 1000, message = "评价内容长度需在1-1000字符之间")

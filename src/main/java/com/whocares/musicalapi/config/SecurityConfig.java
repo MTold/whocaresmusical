@@ -58,6 +58,10 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
+                        .requestMatchers("/api/shopReviews/*/status").permitAll()
+                        .requestMatchers("/api/shopReviews/by-status").permitAll()
+                        .requestMatchers("/api/shopReviews/shop/**").permitAll()
+                        .requestMatchers("/api/shopReviews").permitAll()
                         .anyRequest().authenticated()                  // 其他请求需要认证.cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
 
 
