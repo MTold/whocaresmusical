@@ -64,7 +64,7 @@ public class ReviewController {
 
     //按状态分类获取所有评价
     @GetMapping("/by-status")
-    public ResponseEntity<Page<Review>> getReviewsByStatus(
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByStatus(
             @RequestParam Integer status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -77,7 +77,7 @@ public class ReviewController {
                 Sort.by(Sort.Order.desc("createdAt")) // 按创建时间降序
         );
 
-        return ResponseEntity.ok(reviewService.findByReviewStatus(status, pageable));
+        return ResponseEntity.ok(reviewService.getReviewsByStatus(status, pageable));
     }
     //return reviewService.getReviewsByStatus(status);
 

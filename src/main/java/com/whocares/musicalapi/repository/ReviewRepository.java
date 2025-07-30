@@ -23,7 +23,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Review findByUserIdAndMusicalId(Long userId, Long musicalId);
     
     // 获取剧目的评轮平均分和数量
-    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.musical.id = :musicalId")
+    @Query(value = """
+    SELECT
+        COUNT(*)                    AS total_count,
+        COALESCE(AVG(r.rating), 0)  AS average_rating,
+        SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) AS rating1_count,
+        SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) AS rating2_count,
+        SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) AS rating3_count,
+        SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) AS rating4_count,
+        SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) AS rating5_count
+    FROM reviews r
+    WHERE r.musical_id = :musicalId
+      AND r.review_status = 1
+    """, nativeQuery = true)
+
+    //@Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.musical.id = :musicalId")
     List<Object[]> getReviewStatistics(@Param("musicalId") Long musicalId);
     
     // 获取所有评价（管理后台用）
@@ -38,4 +52,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // 根据评分筛选评价
     Page<Review> findByMusicalIdAndRatingOrderByCreatedAtDesc(Long musicalId, Integer rating, Pageable pageable);
+
+    // 计算某部剧目的平均评分（只统计已通过的评价）
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.musical.id = :musicalId AND r.reviewStatus = 1")
+    Double calculateAverageRatingByMusicalId(@Param("musicalId") Long musicalId);
+
+    // 获取所有有评分的剧目及其平均评分
+    @Query("SELECT r.musical.id, AVG(r.rating) as avgRating FROM Review r WHERE r.reviewStatus = 1 GROUP BY r.musical.id HAVING AVG(r.rating) > 0 ORDER BY AVG(r.rating) DESC")
+    List<Object[]> getMusicalIdsWithAverageRatings();
 }

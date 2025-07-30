@@ -19,6 +19,8 @@ public interface ReviewService {
 
 
     Page<Review> findByReviewStatus(Integer status, Pageable pageable); // 接口声明
+    // 根据评价状态获取评价（带关联信息）
+    Page<ReviewResponse> getReviewsByStatus(Integer status, Pageable pageable);
     ReviewStatisticsResponse getReviewStatistics(Long performanceId);
 
     ReviewResponse createReview(ReviewRequest reviewRequest, String username);

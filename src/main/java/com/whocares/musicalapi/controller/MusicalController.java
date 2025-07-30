@@ -80,4 +80,14 @@ public class MusicalController {
         musicalService.deleteMusical(id);  // 删除音乐剧
         return ResponseEntity.noContent().build();  // 返回无内容响应
     }
+    
+    // 获取按评分排序的前10个音乐剧
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<Musical>> getTopRatedMusicals(@RequestParam(defaultValue = "10") int limit) {
+        List<Musical> topRatedMusicals = musicalService.getTopRatedMusicals(limit);
+        if (topRatedMusicals.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(topRatedMusicals);
+    }
 }

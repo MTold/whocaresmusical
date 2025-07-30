@@ -13,6 +13,7 @@ import com.whocares.musicalapi.repository.UserRepository;
 import com.whocares.musicalapi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,16 @@ public class ReviewServiceImpl implements ReviewService {
         // 方法1：直接使用JPA方法名查询
         return reviewRepository.findByReviewStatus(status, pageable);}
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getReviewsByStatus(Integer status, Pageable pageable) {
+        // 使用带关联查询的方法获取评价数据
+        Page<Review> reviewsPage = reviewRepository.findByStatusWithMusical(status, pageable);
+
+        // 复用现有的convertToResponse方法进行数据转换
+        return reviewsPage.map(this::convertToResponse);
+    }
+
     public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, MusicalRepository musicalRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
@@ -53,12 +64,19 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewsPage;
 
         if (rating != null) {
+            // 使用已存在的方法，但需要手动过滤状态
             reviewsPage = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, rating, pageable);
         } else {
             reviewsPage = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, pageable);
         }
 
-        return reviewsPage.map(this::convertToResponse);
+        // 手动过滤已通过的评价（状态为1）
+        List<Review> filteredReviews = reviewsPage.getContent().stream()
+            .filter(review -> review.getReviewStatus() != null && review.getReviewStatus() == 1)
+            .toList();
+        
+        return new PageImpl<>(filteredReviews, pageable, filteredReviews.size())
+            .map(this::convertToResponse);
     }
 
     @Override
@@ -94,18 +112,19 @@ public class ReviewServiceImpl implements ReviewService {
         Object[] result = results.get(0);
         Long totalCount = ((Number) result[0]).longValue();
         Double averageRating = result[1] != null ? ((Number) result[1]).doubleValue() : 0.0;
-
-        // 计算各等级评分数量
-        RatingCounts counts = getRatingCounts(musicalId);
+        long rating1Count    = result[2] != null ? ((Number) result[2]).longValue() : 0L;
+        long rating2Count    = result[3] != null ? ((Number) result[3]).longValue() : 0L;
+        long rating3Count    = result[4] != null ? ((Number) result[4]).longValue() : 0L;
+        long rating4Count    = result[5] != null ? ((Number) result[5]).longValue() : 0L;
+        long rating5Count    = result[6] != null ? ((Number) result[6]).longValue() : 0L;
 
         response.setTotalCount(totalCount);
-        response.setAverageRating(Math.round(averageRating * 10.0) / 10.0); // 保留一位小数
-        response.setRating1Count(counts.getRating1());
-        response.setRating2Count(counts.getRating2());
-        response.setRating3Count(counts.getRating3());
-        response.setRating4Count(counts.getRating4());
-        response.setRating5Count(counts.getRating5());
-
+        response.setAverageRating(Math.round(averageRating * 10.0) / 10.0);
+        response.setRating1Count(rating1Count);
+        response.setRating2Count(rating2Count);
+        response.setRating3Count(rating3Count);
+        response.setRating4Count(rating4Count);
+        response.setRating5Count(rating5Count);
         return response;
     }
 
@@ -117,7 +136,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = new Review();
         review.setContent(reviewRequest.getContent());
         review.setRating(reviewRequest.getRating());
-        review.setReviewStatus(0); // 默认状态为正常
+        review.setReviewStatus(1); // 默认状态为正常
 
         // 针对匿名用户，设置user为null，让数据库user_id为null
         if (!username.equals("anonymous")) {
@@ -221,7 +240,7 @@ public class ReviewServiceImpl implements ReviewService {
             response.setRating(review.getRating());
             response.setCreatedAt(review.getCreatedAt());
             response.setMusicalId(review.getMusical() != null ? review.getMusical().getId() : null);
-            response.setStatus(review.getReviewStatus()); // 添加状态字段
+            response.setReviewStatus(review.getReviewStatus()); // 添加状态字段
 
             if (review.getUser() != null) {
                 response.setUserId(review.getUser().getUserId());
@@ -242,15 +261,30 @@ public class ReviewServiceImpl implements ReviewService {
         return response;
     }
 
-    private RatingCounts getRatingCounts(Long musicalId) {
+    /*private RatingCounts getRatingCounts(Long musicalId) {
         RatingCounts counts = new RatingCounts();
-        counts.rating1 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 1, Pageable.unpaged()).getTotalElements();
-        counts.rating2 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 2, Pageable.unpaged()).getTotalElements();
-        counts.rating3 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 3, Pageable.unpaged()).getTotalElements();
-        counts.rating4 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 4, Pageable.unpaged()).getTotalElements();
-        counts.rating5 = reviewRepository.findByMusicalIdAndRatingOrderByCreatedAtDesc(musicalId, 5, Pageable.unpaged()).getTotalElements();
+        
+        // 获取所有评价后手动过滤状态
+        List<Review> allReviews = reviewRepository.findByMusicalIdOrderByCreatedAtDesc(musicalId, Pageable.unpaged()).getContent();
+        
+        counts.rating1 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 1)
+            .count();
+        counts.rating2 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 2)
+            .count();
+        counts.rating3 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 3)
+            .count();
+        counts.rating4 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 4)
+            .count();
+        counts.rating5 = allReviews.stream()
+            .filter(r -> r.getReviewStatus() != null && r.getReviewStatus() == 1 && r.getRating() == 5)
+            .count();
+        
         return counts;
-    }
+    }*/
 
     private void validateMusicalExists(Long musicalId) {
         // 不再抛出异常，而是允许自动创建缺失的Musical

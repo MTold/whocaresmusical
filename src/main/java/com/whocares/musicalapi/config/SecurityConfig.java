@@ -40,12 +40,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 关键！放行所有OPTIONS请求
-                        .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/api/reviews/by-status").permitAll()   // 管理员查看评论接口需要ADMIN角色
+                        .requestMatchers("/api/news").permitAll()  // 允许查看资讯详情
+                        .requestMatchers("/api/news/**").permitAll()  // 允许查看特定资讯详情
                         .requestMatchers("/api/auth/**").permitAll()  // 允许认证相关路径
                         .requestMatchers("/api/musicals").permitAll()  // 允许查看剧目列表
                         .requestMatchers("/api/musicals/**").permitAll()  // 允许查看剧目详情
+                        .requestMatchers("/api/shows/**").permitAll()  // 允许查看演出详情
                         .requestMatchers("/api/theaters").permitAll()  // 允许查看剧场列表
                         .requestMatchers("/api/theaters/**").permitAll()  // 允许查看剧场详情
                         .requestMatchers("/api/reviews/musical/**").permitAll()  // 允许查看评价
@@ -53,11 +55,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews").permitAll()  // 允许匿名提交评价
                         .requestMatchers("/api/messages").permitAll()  // 允许查看消息
                         .requestMatchers("/api/messages/*").permitAll()  // 允许查看特定消息
+                        .requestMatchers("/api/recommendations/**").permitAll()  // 允许匿名访问推荐API
                         .requestMatchers("/api/favorites/**").authenticated()  // 收藏相关接口需要认证
                         .requestMatchers("/api/history/**").authenticated()  // 浏览历史相关接口需要认证
                         .requestMatchers("/error").permitAll()         // 允许错误路径
                         .requestMatchers("/actuator/**").permitAll()   // 允许健康检查
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
+                        .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
                         .requestMatchers("/api/shopReviews/*/status").permitAll()
                         .requestMatchers("/api/shopReviews/by-status").permitAll()
                         .requestMatchers("/api/shopReviews/shop/**").permitAll()
@@ -81,7 +86,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));  // 允许所有来源
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 允许的HTTP方法
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));  // 允许的HTTP方法
         configuration.setAllowedHeaders(Arrays.asList("*"));         // 允许所有请求头
         configuration.setAllowCredentials(true);                     // 允许凭据（如Cookie）
 
