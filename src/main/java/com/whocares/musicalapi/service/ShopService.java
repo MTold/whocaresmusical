@@ -12,5 +12,9 @@ import java.util.Set;
 @Service
 public interface ShopService {
 
+    String syncAllTheaterShops();
+
+    String syncSingleTheaterShops(Long theaterId);
+
 
 }

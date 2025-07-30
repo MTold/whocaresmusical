@@ -23,8 +23,8 @@ public class Shop {
     @Column(name="name")
     private String name;
 
-    @Column(name="location")
-    private String location;
+    @Column(name="address")
+    private String address;
 
     @Column(name="category")
     private Integer category;
@@ -40,6 +40,8 @@ public class Shop {
     @JsonIgnore
     private List<Theater> theaters;
 
+    @Column(name="gaodeId",unique = true)
+    private String gaodeId;
 
     /*@ManyToMany(mappedBy = "shops")
     @JsonIgnore

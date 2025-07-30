@@ -11,7 +11,7 @@ import java.util.Set;
 public class ShopResponse {
     private Long id;
     private String name;
-    private String location;
+    private String address;
     private Integer category;
     private String image;
 }
