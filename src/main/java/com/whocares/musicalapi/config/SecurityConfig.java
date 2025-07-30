@@ -63,6 +63,10 @@ public class SecurityConfig {
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")  // 管理员接口需要ADMIN角色
                         .requestMatchers("/api/reviews/*/status").permitAll()  // 评价状态更新需要管理员权限
+                        .requestMatchers("/api/shopReviews/*/status").permitAll()
+                        .requestMatchers("/api/shopReviews/by-status").permitAll()
+                        .requestMatchers("/api/shopReviews/shop/**").permitAll()
+                        .requestMatchers("/api/shopReviews").permitAll()
                         .anyRequest().authenticated()                  // 其他请求需要认证.cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
 
 

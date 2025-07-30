@@ -16,6 +16,7 @@ public class ShopReviewResponse {
     private String username;
     private String userImage;
     private LocalDateTime createdAt;
+    private Long shopId;
     private String shopName;
     private Integer status; // 新增：审核状态 (0-待审核 1-已通过 2-违规)
 

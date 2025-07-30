@@ -32,15 +32,15 @@ public class ShopReview {
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_name", nullable = false)
+    @JoinColumn(name = "shop_id", nullable = false)
     @JsonIgnore
     private Shop shop;
 
-    @Column(name = "shop_name", insertable = false, updatable = false)
-    private String shopName;
+    @Column(name = "shop_id", insertable = false, updatable = false)
+    private Long shopId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
