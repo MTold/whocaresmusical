@@ -1,5 +1,6 @@
 package com.whocares.musicalapi.dto.response;
 
+import lombok.Data;
 
 import java.util.List;
 

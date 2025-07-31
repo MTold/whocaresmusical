@@ -25,9 +25,19 @@ public class TheaterServiceImpl implements TheaterService {
 
     // 添加或更新剧院
     @Override
-    public Long saveOrUpdateTheater(Theater theater){
-        theaterRepository.save(theater);
-        return theater.getId();
+    public Long saveOrUpdateTheater(Theater theater) {
+        if (theater.getId() != null) {
+            Theater existingTheater = theaterRepository.findById(theater.getId()).orElse(null);
+            if (existingTheater != null) {
+                existingTheater.setName(theater.getName());
+                existingTheater.setLocationName(theater.getLocationName());
+                existingTheater.setLatitude(theater.getLatitude());
+                existingTheater.setLongitude(theater.getLongitude());
+                existingTheater.setImageUrl(theater.getImageUrl());
+                return theaterRepository.save(existingTheater).getId();
+            }
+        }
+        return theaterRepository.save(theater).getId();
     }
 
     @Override
