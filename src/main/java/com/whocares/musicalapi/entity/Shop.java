@@ -32,19 +32,17 @@ public class Shop {
     @Column(name="image")
     private String image;
 
-    @ManyToMany
+    //与TheaterShop类的内容冲突，会影响删除店铺功能
+    /*@ManyToMany
     @JoinTable(
             name = "theater_shop",
             joinColumns = @JoinColumn(name = "shop_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "theater_id", nullable = false))
     @JsonIgnore
-    private List<Theater> theaters;
+    private List<Theater> theaters;*/
 
     @Column(name="gaodeId",unique = true)
     private String gaodeId;
 
-    /*@ManyToMany(mappedBy = "shops")
-    @JsonIgnore
-    private List<Theater> theaters;*/
 
 }

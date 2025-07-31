@@ -33,16 +33,16 @@ public class Theater {
     @Column(name = "`imageUrl`")
     private String imageUrl;
 
-    /*@ManyToMany
+    @ManyToMany
     @JoinTable(
             name = "theater_shop",
             joinColumns = @JoinColumn(name = "theater_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "shop_id", nullable = false))
-    private List<Shop> shops;*/
-
-    @ManyToMany(mappedBy = "theaters")
-    //@JsonIgnore
     private List<Shop> shops;
+
+    /*@ManyToMany(mappedBy = "theaters")
+    //@JsonIgnore
+    private List<Shop> shops;*/
 
     public void setId(Long id) {
 

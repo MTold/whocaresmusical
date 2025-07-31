@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/shopReviews/shop/**").permitAll()
                         .requestMatchers("/api/shopReviews").permitAll()
                         .requestMatchers("/api/shops/sync/**").permitAll()
+                        .requestMatchers("/api/shops/**").permitAll()
                         .anyRequest().authenticated()                  // 其他请求需要认证.cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 启用CORS配置
 
 
