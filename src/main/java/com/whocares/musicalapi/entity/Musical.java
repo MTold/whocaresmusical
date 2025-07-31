@@ -35,6 +35,9 @@ public class Musical {
     @Column(name = "venue")
     private String venue;
 
+    @Column(name = "hasFutureSchedule")
+    private String hasFutureSchedule;
+
     @Column(name = "genre")
     private String genre;
 

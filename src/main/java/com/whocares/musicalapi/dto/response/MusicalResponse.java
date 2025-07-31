@@ -11,5 +11,6 @@ public class MusicalResponse {
     private String info;  // 音乐剧的描述
     private String is_original;  // 音乐剧是否原创
     private String imageUrl;  // 存储封面图的URL
+    private boolean hasFutureSchedule;//是否有未来演出计划
     private List<ShowResponse> shows;  // 演出排期列表
 }
