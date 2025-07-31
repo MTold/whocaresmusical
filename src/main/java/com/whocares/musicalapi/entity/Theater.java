@@ -15,11 +15,11 @@ import java.util.Set;
 public class Theater {
 
     @Id
-    @Column(name="id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // 让数据库处理 ID 的生成
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "location_name", nullable = false)
@@ -40,6 +40,6 @@ public class Theater {
             joinColumns = @JoinColumn(name = "theater_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "shop_id", nullable = false))
     private List<Shop> shops;
-    }
+}
 
 
