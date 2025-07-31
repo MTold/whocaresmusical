@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -127,5 +129,19 @@ public class UserService {
         }
         
         return userRepository.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll(); // 从数据库中获取所有用户
+    }
+
+    // 删除用户
+    public void deleteUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            userRepository.delete(user.get());  // 删除用户
+        } else {
+            throw new RuntimeException("用户不存在");
+        }
     }
 }
