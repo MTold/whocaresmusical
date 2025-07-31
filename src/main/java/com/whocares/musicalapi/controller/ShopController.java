@@ -26,4 +26,30 @@ public class ShopController {
     }
 
 
+    /**
+     * 同步所有剧院的周边店铺
+     */
+    @PostMapping("/sync/all")
+    public ResponseEntity<String> syncAllShops() {
+        try {
+            String result = shopService.syncAllTheaterShops();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("同步失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 同步单个剧院的周边店铺
+     */
+    @PostMapping("/sync/{theaterId}")
+    public ResponseEntity<String> syncSingleTheaterShops(@PathVariable Long theaterId) {
+        try {
+            String result = shopService.syncSingleTheaterShops(theaterId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("同步失败: " + e.getMessage());
+        }
+    }
+
 }
