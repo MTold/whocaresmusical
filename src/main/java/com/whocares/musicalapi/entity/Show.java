@@ -12,12 +12,13 @@ public class Show {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "theater_id")
     private Long theaterId;
 
-    @Column(name = "musical_id", insertable = false, updatable = false)
+    @Column(name = "musical_id")
     private Long musicalId;
 
 //    @ManyToOne
